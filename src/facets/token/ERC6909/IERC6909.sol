@@ -1,8 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-/// @title ERC6909 Core Interface
-interface IERC6909 {
+/// @title ERC6909 Base Interface
+/// @notice Contains the core events used by the ERC6909 token standard
+interface IERC6909Base {
+  /// @notice Thrown when an account has insufficient balance for a transfer
+  error InsufficientBalance();
+
+  /// @notice Thrown when an account has insufficient permission to perform an operation
+  error InsufficientPermission();
+
+  /// @notice Thrown when a balance operation would cause an overflow
+  error BalanceOverflow();
+
   /// @notice The event emitted when a transfer occurs.
   /// @param caller The caller of the transfer.
   /// @param sender The address of the sender.
@@ -38,7 +48,10 @@ interface IERC6909 {
     uint256 indexed id,
     uint256 amount
   );
+}
 
+/// @title ERC6909 Core Interface
+interface IERC6909 is IERC6909Base {
   /// @notice Name of a given token.
   /// @param id The id of the token.
   /// @return name The name of the token.
