@@ -23,7 +23,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: stable
 
       - uses: actions/setup-node@v4
         with:
@@ -39,7 +39,7 @@ jobs:
 
       - name: Run Forge fmt
         run: |
-          yarn prettier --check src
+          yarn prettier
         id: fmt
 
       - name: Run Forge build

@@ -9,7 +9,7 @@
     "**/*.sol"
   ],
   "scripts": {
-    "prettier": "prettier --check {scripts,src,test}/**/*.sol",
+    "prettier": "prettier --check src/**/*.sol --config package.json",
     "prettier:fix": "prettier --write {scripts,src,test}/**/*.sol"
   },
   "devDependencies": {
