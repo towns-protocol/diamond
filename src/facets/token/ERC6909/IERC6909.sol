@@ -10,9 +10,6 @@ interface IERC6909Base {
   /// @notice Thrown when an account has insufficient permission to perform an operation
   error InsufficientPermission();
 
-  /// @notice Thrown when a balance operation would cause an overflow
-  error BalanceOverflow();
-
   /// @notice The event emitted when a transfer occurs.
   /// @param caller The caller of the transfer.
   /// @param sender The address of the sender.

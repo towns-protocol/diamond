@@ -83,13 +83,6 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     assertEq(facet.balanceOf(to, tokenId), amount);
   }
 
-  function test_allowance_gas()
-    public
-    givenAccountIsApproved(address(this), address(1), 1, 1 ether)
-  {
-    assertEq(facet.allowance(address(this), address(1), 1), 1 ether);
-  }
-
   function test_allowance(
     address owner,
     address spender,
@@ -177,12 +170,9 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
   function test_approve_gas()
     public
-    givenTokensAreMinted(address(this), 1, 1 ether)
+    givenAccountIsApproved(address(this), address(1), 1, 1 ether)
   {
-    address spender = address(1);
-    bool success = facet.approve(spender, 1, 1 ether);
-    assertTrue(success);
-    assertEq(facet.allowance(address(this), spender, 1), 1 ether);
+    assertEq(facet.allowance(address(this), address(1), 1), 1 ether);
   }
 
   function test_approve(
