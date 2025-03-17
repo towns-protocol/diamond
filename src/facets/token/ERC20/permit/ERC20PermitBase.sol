@@ -2,18 +2,25 @@
 pragma solidity ^0.8.23;
 
 // interfaces
-import {IERC20PermitBase} from "./IERC20PermitBase.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
+import {IERC20PermitBase} from "./IERC20PermitBase.sol";
 
 // libraries
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ERC20Storage} from "../ERC20Storage.sol";
 
 // contracts
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Nonces} from "../../../../utils/Nonces.sol";
 import {EIP712} from "../../../../utils/cryptography/EIP712.sol";
 import {ERC20} from "../ERC20.sol";
 
-abstract contract ERC20PermitBase is IERC20PermitBase, ERC20, EIP712, Nonces {
+abstract contract ERC20PermitBase is
+  IERC20PermitBase,
+  IERC20Permit,
+  ERC20,
+  EIP712,
+  Nonces
+{
   function __ERC20PermitBase_init(
     string memory name_,
     string memory symbol_,
