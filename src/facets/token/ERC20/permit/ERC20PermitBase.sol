@@ -2,18 +2,25 @@
 pragma solidity ^0.8.23;
 
 // interfaces
-import {IERC20PermitBase} from "./IERC20PermitBase.sol";
 import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
+import {IERC20PermitBase} from "./IERC20PermitBase.sol";
 
 // libraries
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ERC20Storage} from "../ERC20Storage.sol";
 
 // contracts
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {Nonces} from "../../../../utils/Nonces.sol";
 import {EIP712} from "../../../../utils/cryptography/EIP712.sol";
 import {ERC20} from "../ERC20.sol";
 
-abstract contract ERC20PermitBase is IERC20PermitBase, ERC20, EIP712, Nonces {
+abstract contract ERC20PermitBase is
+  IERC20PermitBase,
+  IERC20Permit,
+  ERC20,
+  EIP712,
+  Nonces
+{
   function __ERC20PermitBase_init(
     string memory name_,
     string memory symbol_,
@@ -46,7 +53,10 @@ abstract contract ERC20PermitBase is IERC20PermitBase, ERC20, EIP712, Nonces {
     bytes32 r,
     bytes32 s
   ) external {
-    require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+    if (block.timestamp > deadline) {
+      revert ERC2612ExpiredSignature(deadline);
+    }
+
     bytes32 structHash = keccak256(
       abi.encode(
         _PERMIT_TYPEHASH,
@@ -61,8 +71,12 @@ abstract contract ERC20PermitBase is IERC20PermitBase, ERC20, EIP712, Nonces {
     bytes32 hash = _hashTypedDataV4(structHash);
 
     address signer = ECDSA.recover(hash, v, r, s);
-    require(signer == owner, "ERC20Permit: invalid signature");
-    approve(spender, amount);
+    if (signer != owner) {
+      revert ERC2612InvalidSigner(signer, owner);
+    }
+
+    ERC20Storage.layout().inner._approve(owner, spender, amount);
+    emit Approval(owner, spender, amount);
   }
 
   /// @inheritdoc IERC20Permit

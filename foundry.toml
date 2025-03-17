@@ -1,19 +1,15 @@
 [profile.default]
 auto_detect_solc = false # Foundry will automatically try to resolve appropriate Solidity compiler versions
-block_timestamp = 1_680_220_800 # The value of block.timestamp in tests. March 31, 2023 at 00:00 GMT
+solc_version = "0.8.29" # Uses a single Solidity compiler version for the project
+optimizer = true
+optimizer_runs = 4294967295
 src = "src"
 out = "out"
 test = "test"
 libs = ["node_modules"]
 verbosity = 3 # The verbosity level to use during tests.
-solc_version = "0.8.24" # Uses a single Solidity compiler version for the project
-remappings = [
-  "ds-test/=node_modules/ds-test/",
-  "forge-std/=node_modules/forge-std/src/",
-  "solady/=node_modules/solady/src/",
-  "@openzeppelin/=node_modules/@openzeppelin/",
-  "@prb/test/=node_modules/@prb/test/src/",
-  "@river-build/diamond/=src/",
-] # The remappings to use
+
+[profile.ci.fuzz]
+runs = 65536
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

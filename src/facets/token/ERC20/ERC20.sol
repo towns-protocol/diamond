@@ -64,12 +64,14 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
     uint256 amount
   ) public virtual returns (bool) {
     ERC20Storage.layout().inner.approve(spender, amount);
+    emit Approval(msg.sender, spender, amount);
     return true;
   }
 
   /// @inheritdoc IERC20
   function transfer(address to, uint256 amount) public virtual returns (bool) {
     ERC20Storage.layout().inner.transfer(to, amount);
+    emit Transfer(msg.sender, to, amount);
     return true;
   }
 
@@ -80,6 +82,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
     uint256 amount
   ) public virtual returns (bool) {
     ERC20Storage.layout().inner.transferFrom(from, to, amount);
+    emit Transfer(from, to, amount);
     return true;
   }
 
@@ -108,9 +111,11 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
 
   function _mint(address to, uint256 amount) internal {
     ERC20Storage.layout().inner.mint(to, amount);
+    emit Transfer(address(0), to, amount);
   }
 
   function _burn(address from, uint256 amount) internal {
     ERC20Storage.layout().inner.burn(from, amount);
+    emit Transfer(from, address(0), amount);
   }
 }
