@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import {MinimalERC20Storage} from "./ERC20.sol";
 import {IERC6909Base} from "../facets/token/ERC6909/IERC6909.sol";
 
-using ERC6909 for MinimalERC6909Storage global;
+using ERC6909Lib for MinimalERC6909Storage global;
 
 /// @notice Minimal storage layout for ERC6909
 /// @dev Do not modify the layout of this struct especially if it's nested in another struct
@@ -14,9 +14,10 @@ struct MinimalERC6909Storage {
   mapping(address owner => mapping(address spender => bool)) operatorApprovals;
 }
 
-/// @title ERC6909
+/// @title ERC6909Lib
 /// @notice Minimal ERC6909 implementation
-library ERC6909 {
+/// @dev The library implements the core functionality of an ERC6909 token without emitting events
+library ERC6909Lib {
   /// @notice Returns the total supply of a specific token ID
   /// @param id The token ID to query
   /// @return The total supply of the token
@@ -74,9 +75,10 @@ library ERC6909 {
     address to,
     uint256 id,
     uint256 amount
-  ) internal returns (bool) {
-    _transfer(self, msg.sender, to, id, amount);
-    return true;
+  ) internal {
+    MinimalERC20Storage storage token = self.tokens[id];
+    _deductBalance(token, msg.sender, id, amount);
+    token._increaseBalance(to, amount);
   }
 
   /// @notice Transfers tokens from one address to another using an allowance
@@ -91,27 +93,20 @@ library ERC6909 {
     address to,
     uint256 id,
     uint256 amount
-  ) internal returns (bool) {
+  ) internal {
     MinimalERC20Storage storage token = self.tokens[id];
     if (msg.sender != from && !isOperator(self, from, msg.sender)) {
-      uint256 slot = token.allowances.slot(from, msg.sender);
-      uint256 currentAllowance;
-      assembly {
-        currentAllowance := sload(slot)
-      }
-      if (currentAllowance != type(uint256).max) {
-        if (currentAllowance < amount) {
-          revert IERC6909Base.InsufficientPermission();
-        }
-        assembly {
-          sstore(slot, sub(currentAllowance, amount))
-        }
+      (bool insufficient, ) = token._spendAllowanceNoRevert(
+        from,
+        msg.sender,
+        amount
+      );
+      if (insufficient) {
+        revert IERC6909Base.InsufficientPermission(msg.sender, id);
       }
     }
-    token._deductBalance(from, amount);
+    _deductBalance(token, from, id, amount);
     token._increaseBalance(to, amount);
-    emit IERC6909Base.Transfer(msg.sender, from, to, id, amount);
-    return true;
   }
 
   /// @notice Approves a spender to spend tokens on behalf of the caller
@@ -123,9 +118,8 @@ library ERC6909 {
     address spender,
     uint256 id,
     uint256 amount
-  ) internal returns (bool) {
+  ) internal {
     _approve(self, msg.sender, spender, id, amount);
-    return true;
   }
 
   /// @notice Sets or revokes operator status for an address
@@ -136,10 +130,8 @@ library ERC6909 {
     MinimalERC6909Storage storage self,
     address operator,
     bool approved
-  ) internal returns (bool) {
+  ) internal {
     self.operatorApprovals[msg.sender][operator] = approved;
-    emit IERC6909Base.OperatorSet(msg.sender, operator, approved);
-    return true;
   }
 
   /// @notice Mints new tokens to a specified address
@@ -157,7 +149,6 @@ library ERC6909 {
     // Overflow check required: The rest of the code assumes that totalSupply never overflows
     token.totalSupply += amount;
     token._increaseBalance(to, amount);
-    emit IERC6909Base.Transfer(msg.sender, address(0), to, id, amount);
   }
 
   /// @notice Burns tokens from a specified address
@@ -172,12 +163,11 @@ library ERC6909 {
     uint256 amount
   ) internal {
     MinimalERC20Storage storage token = self.tokens[id];
-    token._deductBalance(from, amount);
+    _deductBalance(token, from, id, amount);
     unchecked {
       // Overflow not possible: amount <= totalSupply or amount <= fromBalance <= totalSupply.
       token.totalSupply -= amount;
     }
-    emit IERC6909Base.Transfer(msg.sender, from, address(0), id, amount);
   }
 
   /// @notice Internal function to approve a spender
@@ -194,25 +184,23 @@ library ERC6909 {
     uint256 amount
   ) internal {
     self.tokens[id].allowances.set(owner, spender, amount);
-    emit IERC6909Base.Approval(owner, spender, id, amount);
   }
 
-  /// @notice Internal function to transfer tokens between addresses
-  /// @dev Handles the actual transfer logic for transfer and transferFrom
-  /// @param from The address to transfer tokens from
-  /// @param to The address to transfer tokens to
-  /// @param id The token ID to transfer
-  /// @param amount The amount of tokens to transfer
-  function _transfer(
-    MinimalERC6909Storage storage self,
+  /// @notice Internal function to deduct balance
+  /// @dev Reverts if the deduction would result in an underflow
+  /// @param token The token storage to deduct from
+  /// @param from The address to deduct from
+  /// @param id The token ID to deduct
+  /// @param amount The amount to deduct
+  function _deductBalance(
+    MinimalERC20Storage storage token,
     address from,
-    address to,
     uint256 id,
     uint256 amount
   ) internal {
-    MinimalERC20Storage storage token = self.tokens[id];
-    token._deductBalance(from, amount);
-    token._increaseBalance(to, amount);
-    emit IERC6909Base.Transfer(msg.sender, from, to, id, amount);
+    (bool underflow, ) = token._deductBalanceNoRevert(from, amount);
+    if (underflow) {
+      revert IERC6909Base.InsufficientBalance(from, id);
+    }
   }
 }

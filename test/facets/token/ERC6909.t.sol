@@ -164,7 +164,13 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
     // No tokens minted, so balance is 0
     vm.prank(from);
-    vm.expectRevert(IERC6909Base.InsufficientBalance.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        IERC6909Base.InsufficientBalance.selector,
+        from,
+        tokenId
+      )
+    );
     facet.transfer(to, tokenId, amount);
   }
 
@@ -311,7 +317,13 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     facet.approve(spender, tokenId, approvedAmount);
 
     vm.prank(spender);
-    vm.expectRevert(IERC6909Base.InsufficientPermission.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        IERC6909Base.InsufficientPermission.selector,
+        spender,
+        tokenId
+      )
+    );
     facet.transferFrom(owner, receiver, tokenId, amount);
   }
 
@@ -340,7 +352,13 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     facet.approve(spender, tokenId, transferAmount);
 
     vm.prank(spender);
-    vm.expectRevert(IERC6909Base.InsufficientBalance.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        IERC6909Base.InsufficientBalance.selector,
+        owner,
+        tokenId
+      )
+    );
     facet.transferFrom(owner, receiver, tokenId, transferAmount);
   }
 
@@ -402,7 +420,13 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
     facet.mint(from, tokenId, mintAmount);
 
-    vm.expectRevert(IERC6909Base.InsufficientBalance.selector);
+    vm.expectRevert(
+      abi.encodeWithSelector(
+        IERC6909Base.InsufficientBalance.selector,
+        from,
+        tokenId
+      )
+    );
     facet.burn(from, tokenId, burnAmount);
   }
 

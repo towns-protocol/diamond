@@ -5,7 +5,6 @@ pragma solidity ^0.8.23;
 import {IERC6909} from "./IERC6909.sol";
 
 // libraries
-import {MinimalERC6909Storage} from "../../../primitive/ERC6909.sol";
 import {ERC6909Storage} from "./ERC6909Storage.sol";
 
 // contracts
@@ -80,7 +79,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    return ERC6909Storage.getLayout().inner.transfer(to, id, amount);
+    ERC6909Storage.getLayout().inner.transfer(to, id, amount);
+    emit Transfer(msg.sender, msg.sender, to, id, amount);
+    return true;
   }
 
   /// @inheritdoc IERC6909
@@ -90,7 +91,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    return ERC6909Storage.getLayout().inner.transferFrom(from, to, id, amount);
+    ERC6909Storage.getLayout().inner.transferFrom(from, to, id, amount);
+    emit Transfer(msg.sender, from, to, id, amount);
+    return true;
   }
 
   /// @inheritdoc IERC6909
@@ -99,7 +102,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    return ERC6909Storage.getLayout().inner.approve(spender, id, amount);
+    ERC6909Storage.getLayout().inner.approve(spender, id, amount);
+    emit Approval(msg.sender, spender, id, amount);
+    return true;
   }
 
   /// @inheritdoc IERC6909
@@ -107,7 +112,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address operator,
     bool approved
   ) external returns (bool) {
-    return ERC6909Storage.getLayout().inner.setOperator(operator, approved);
+    ERC6909Storage.getLayout().inner.setOperator(operator, approved);
+    emit OperatorSet(msg.sender, operator, approved);
+    return true;
   }
 
   /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -115,10 +122,12 @@ abstract contract ERC6909 is Facet, IERC6909 {
   /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
   function _mint(address to, uint256 id, uint256 amount) internal virtual {
-    return ERC6909Storage.getLayout().inner.mint(to, id, amount);
+    ERC6909Storage.getLayout().inner.mint(to, id, amount);
+    emit Transfer(msg.sender, address(0), to, id, amount);
   }
 
   function _burn(address from, uint256 id, uint256 amount) internal virtual {
-    return ERC6909Storage.getLayout().inner.burn(from, id, amount);
+    ERC6909Storage.getLayout().inner.burn(from, id, amount);
+    emit Transfer(msg.sender, from, address(0), id, amount);
   }
 }
