@@ -5,15 +5,19 @@ pragma solidity ^0.8.23;
 import {IERC6909} from "./IERC6909.sol";
 
 // libraries
-import {ERC6909Lib} from "./ERC6909Lib.sol";
+import {ERC6909Storage} from "./ERC6909Storage.sol";
+import {ERC6909Lib} from "src/primitive/ERC6909.sol";
 
 // contracts
 import {Facet} from "../../Facet.sol";
 
 abstract contract ERC6909 is Facet, IERC6909 {
+  using ERC6909Lib for ERC6909Lib.MinimalERC6909Storage;
+
   /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
   /*                      ERC6909 METADATA                      */
   /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
   function __ERC6909_init() internal {
     _addInterface(0x0f632fb3);
   }
@@ -44,15 +48,15 @@ abstract contract ERC6909 is Facet, IERC6909 {
 
   /// @inheritdoc IERC6909
   function totalSupply(uint256 id) public view virtual returns (uint256) {
-    return ERC6909Lib.totalSupply(id);
+    return ERC6909Storage.getLayout().totalSupply(id);
   }
 
   /// @inheritdoc IERC6909
   function balanceOf(
     address owner,
     uint256 id
-  ) public view virtual returns (uint256 balance) {
-    return ERC6909Lib.balanceOf(owner, id);
+  ) public view virtual returns (uint256) {
+    return ERC6909Storage.getLayout().balanceOf(owner, id);
   }
 
   /// @inheritdoc IERC6909
@@ -60,16 +64,16 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address owner,
     address spender,
     uint256 id
-  ) public view virtual returns (uint256 remaining) {
-    return ERC6909Lib.allowance(owner, spender, id);
+  ) public view virtual returns (uint256) {
+    return ERC6909Storage.getLayout().allowance(owner, spender, id);
   }
 
   /// @inheritdoc IERC6909
   function isOperator(
     address owner,
     address spender
-  ) public view virtual returns (bool status) {
-    return ERC6909Lib.isOperator(owner, spender);
+  ) public view virtual returns (bool) {
+    return ERC6909Storage.getLayout().isOperator(owner, spender);
   }
 
   /// @inheritdoc IERC6909
@@ -78,7 +82,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    return ERC6909Lib.transfer(to, id, amount);
+    ERC6909Storage.getLayout().transfer(to, id, amount);
+    emit Transfer(msg.sender, msg.sender, to, id, amount);
+    return true;
   }
 
   /// @inheritdoc IERC6909
@@ -88,7 +94,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    return ERC6909Lib.transferFrom(from, to, id, amount);
+    ERC6909Storage.getLayout().transferFrom(from, to, id, amount);
+    emit Transfer(msg.sender, from, to, id, amount);
+    return true;
   }
 
   /// @inheritdoc IERC6909
@@ -97,7 +105,9 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    return ERC6909Lib.approve(spender, id, amount);
+    ERC6909Storage.getLayout().approve(spender, id, amount);
+    emit Approval(msg.sender, spender, id, amount);
+    return true;
   }
 
   /// @inheritdoc IERC6909
@@ -105,17 +115,22 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address operator,
     bool approved
   ) external returns (bool) {
-    return ERC6909Lib.setOperator(operator, approved);
+    ERC6909Storage.getLayout().setOperator(operator, approved);
+    emit OperatorSet(msg.sender, operator, approved);
+    return true;
   }
 
   /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
   /*                           MINTING                          */
   /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
+
   function _mint(address to, uint256 id, uint256 amount) internal virtual {
-    return ERC6909Lib.mint(to, id, amount);
+    ERC6909Storage.getLayout().mint(to, id, amount);
+    emit Transfer(msg.sender, address(0), to, id, amount);
   }
 
   function _burn(address from, uint256 id, uint256 amount) internal virtual {
-    return ERC6909Lib.burn(from, id, amount);
+    ERC6909Storage.getLayout().burn(from, id, amount);
+    emit Transfer(msg.sender, from, address(0), id, amount);
   }
 }

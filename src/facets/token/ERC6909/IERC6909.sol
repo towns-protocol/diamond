@@ -4,14 +4,15 @@ pragma solidity ^0.8.19;
 /// @title ERC6909 Base Interface
 /// @notice Contains the core events used by the ERC6909 token standard
 interface IERC6909Base {
-  /// @notice Thrown when an account has insufficient balance for a transfer
-  error InsufficientBalance();
+  /// @notice Thrown when owner balance for id is insufficient.
+  /// @param owner The address of the owner.
+  /// @param id The id of the token.
+  error InsufficientBalance(address owner, uint256 id);
 
-  /// @notice Thrown when an account has insufficient permission to perform an operation
-  error InsufficientPermission();
-
-  /// @notice Thrown when a balance operation would cause an overflow
-  error BalanceOverflow();
+  /// @notice Thrown when spender allowance for id is insufficient.
+  /// @param spender The address of the spender.
+  /// @param id The id of the token.
+  error InsufficientPermission(address spender, uint256 id);
 
   /// @notice The event emitted when a transfer occurs.
   /// @param caller The caller of the transfer.
