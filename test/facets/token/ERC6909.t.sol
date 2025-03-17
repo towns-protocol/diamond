@@ -25,13 +25,21 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     facet = MockERC6909(deployMockERC6909Helper.deploy(deployer));
   }
 
-  modifier givenTokensAreMinted(address to, uint256 tokenId, uint256 amount) {
+  modifier givenTokensAreMinted(
+    address to,
+    uint256 tokenId,
+    uint256 amount
+  ) {
     vm.assume(to != address(0));
     facet.mint(to, tokenId, amount);
     _;
   }
 
-  modifier givenTokensAreBurned(address from, uint256 tokenId, uint256 amount) {
+  modifier givenTokensAreBurned(
+    address from,
+    uint256 tokenId,
+    uint256 amount
+  ) {
     facet.burn(from, tokenId, amount);
     _;
   }
@@ -48,7 +56,11 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     _;
   }
 
-  modifier givenOperatorIsSet(address owner, address operator, bool approved) {
+  modifier givenOperatorIsSet(
+    address owner,
+    address operator,
+    bool approved
+  ) {
     vm.prank(owner);
     facet.setOperator(operator, approved);
     _;
@@ -165,11 +177,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     // No tokens minted, so balance is 0
     vm.prank(from);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        IERC6909Base.InsufficientBalance.selector,
-        from,
-        tokenId
-      )
+      abi.encodeWithSelector(InsufficientBalance.selector, from, tokenId)
     );
     facet.transfer(to, tokenId, amount);
   }
@@ -318,11 +326,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
     vm.prank(spender);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        IERC6909Base.InsufficientPermission.selector,
-        spender,
-        tokenId
-      )
+      abi.encodeWithSelector(InsufficientPermission.selector, spender, tokenId)
     );
     facet.transferFrom(owner, receiver, tokenId, amount);
   }
@@ -353,11 +357,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
     vm.prank(spender);
     vm.expectRevert(
-      abi.encodeWithSelector(
-        IERC6909Base.InsufficientBalance.selector,
-        owner,
-        tokenId
-      )
+      abi.encodeWithSelector(InsufficientBalance.selector, owner, tokenId)
     );
     facet.transferFrom(owner, receiver, tokenId, transferAmount);
   }
@@ -421,11 +421,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     facet.mint(from, tokenId, mintAmount);
 
     vm.expectRevert(
-      abi.encodeWithSelector(
-        IERC6909Base.InsufficientBalance.selector,
-        from,
-        tokenId
-      )
+      abi.encodeWithSelector(InsufficientBalance.selector, from, tokenId)
     );
     facet.burn(from, tokenId, burnAmount);
   }
