@@ -106,21 +106,40 @@ library ERC20Lib {
     address spender,
     uint256 value
   ) internal {
+    (bool insufficient, uint256 currentAllowance) = _spendAllowanceNoRevert(
+      self,
+      owner,
+      spender,
+      value
+    );
+    if (insufficient) {
+      revert IERC20Errors.ERC20InsufficientAllowance(
+        spender,
+        currentAllowance,
+        value
+      );
+    }
+  }
+
+  /// @dev Updates `owner` s allowance for `spender` based on spent `value` if the allowance is sufficient.
+  /// @return insufficient True if the allowance of `spender` is less than `value`.
+  /// @return currentAllowance The current allowance of `spender` over `owner` s tokens.
+  function _spendAllowanceNoRevert(
+    MinimalERC20Storage storage self,
+    address owner,
+    address spender,
+    uint256 value
+  ) internal returns (bool insufficient, uint256 currentAllowance) {
     uint256 slot = self.allowances.slot(owner, spender);
-    uint256 currentAllowance;
     assembly {
       currentAllowance := sload(slot)
     }
     if (currentAllowance != type(uint256).max) {
-      if (currentAllowance < value) {
-        revert IERC20Errors.ERC20InsufficientAllowance(
-          spender,
-          currentAllowance,
-          value
-        );
-      }
-      assembly {
-        sstore(slot, sub(currentAllowance, value))
+      insufficient = currentAllowance < value;
+      if (!insufficient) {
+        assembly {
+          sstore(slot, sub(currentAllowance, value))
+        }
       }
     }
   }
@@ -147,22 +166,40 @@ library ERC20Lib {
     _increaseBalance(self, to, value);
   }
 
+  /// @dev Deducts `value` amount of tokens from `from`.
   function _deductBalance(
     MinimalERC20Storage storage self,
     address from,
     uint256 value
   ) internal {
+    (bool insufficient, uint256 fromBalance) = _deductBalanceNoRevert(
+      self,
+      from,
+      value
+    );
+    if (insufficient) {
+      revert IERC20Errors.ERC20InsufficientBalance(from, fromBalance, value);
+    }
+  }
+
+  /// @dev Deducts `value` amount of tokens from `from` if the balance is sufficient.
+  /// @return insufficient True if the balance of `from` is less than `value`.
+  /// @return fromBalance The balance of `from` before the deduction.
+  function _deductBalanceNoRevert(
+    MinimalERC20Storage storage self,
+    address from,
+    uint256 value
+  ) internal returns (bool insufficient, uint256 fromBalance) {
     uint256 fromSlot = self.balances.slot(from);
-    uint256 fromBalance;
     assembly {
       fromBalance := sload(fromSlot)
     }
-    if (fromBalance < value) {
-      revert IERC20Errors.ERC20InsufficientBalance(from, fromBalance, value);
-    }
-    assembly {
-      // Overflow not possible: value <= fromBalance <= totalSupply.
-      sstore(fromSlot, sub(fromBalance, value))
+    insufficient = fromBalance < value;
+    if (!insufficient) {
+      assembly {
+        // Overflow not possible: value <= fromBalance <= totalSupply.
+        sstore(fromSlot, sub(fromBalance, value))
+      }
     }
   }
 
