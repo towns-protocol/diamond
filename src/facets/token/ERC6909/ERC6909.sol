@@ -45,7 +45,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
 
   /// @inheritdoc IERC6909
   function totalSupply(uint256 id) public view virtual returns (uint256) {
-    return ERC6909Storage.getLayout().inner.totalSupply(id);
+    return ERC6909Storage.getLayout().totalSupply(id);
   }
 
   /// @inheritdoc IERC6909
@@ -53,7 +53,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address owner,
     uint256 id
   ) public view virtual returns (uint256) {
-    return ERC6909Storage.getLayout().inner.balanceOf(owner, id);
+    return ERC6909Storage.getLayout().balanceOf(owner, id);
   }
 
   /// @inheritdoc IERC6909
@@ -62,7 +62,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address spender,
     uint256 id
   ) public view virtual returns (uint256) {
-    return ERC6909Storage.getLayout().inner.allowance(owner, spender, id);
+    return ERC6909Storage.getLayout().allowance(owner, spender, id);
   }
 
   /// @inheritdoc IERC6909
@@ -70,7 +70,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address owner,
     address spender
   ) public view virtual returns (bool) {
-    return ERC6909Storage.getLayout().inner.isOperator(owner, spender);
+    return ERC6909Storage.getLayout().isOperator(owner, spender);
   }
 
   /// @inheritdoc IERC6909
@@ -79,7 +79,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    ERC6909Storage.getLayout().inner.transfer(to, id, amount);
+    ERC6909Storage.getLayout().transfer(to, id, amount);
     emit Transfer(msg.sender, msg.sender, to, id, amount);
     return true;
   }
@@ -91,7 +91,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    ERC6909Storage.getLayout().inner.transferFrom(from, to, id, amount);
+    ERC6909Storage.getLayout().transferFrom(from, to, id, amount);
     emit Transfer(msg.sender, from, to, id, amount);
     return true;
   }
@@ -102,7 +102,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     uint256 id,
     uint256 amount
   ) external returns (bool) {
-    ERC6909Storage.getLayout().inner.approve(spender, id, amount);
+    ERC6909Storage.getLayout().approve(spender, id, amount);
     emit Approval(msg.sender, spender, id, amount);
     return true;
   }
@@ -112,7 +112,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     address operator,
     bool approved
   ) external returns (bool) {
-    ERC6909Storage.getLayout().inner.setOperator(operator, approved);
+    ERC6909Storage.getLayout().setOperator(operator, approved);
     emit OperatorSet(msg.sender, operator, approved);
     return true;
   }
@@ -122,12 +122,12 @@ abstract contract ERC6909 is Facet, IERC6909 {
   /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
   function _mint(address to, uint256 id, uint256 amount) internal virtual {
-    ERC6909Storage.getLayout().inner.mint(to, id, amount);
+    ERC6909Storage.getLayout().mint(to, id, amount);
     emit Transfer(msg.sender, address(0), to, id, amount);
   }
 
   function _burn(address from, uint256 id, uint256 amount) internal virtual {
-    ERC6909Storage.getLayout().inner.burn(from, id, amount);
+    ERC6909Storage.getLayout().burn(from, id, amount);
     emit Transfer(msg.sender, from, address(0), id, amount);
   }
 }
