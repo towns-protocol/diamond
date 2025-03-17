@@ -8,12 +8,6 @@ pragma solidity ^0.8.23;
 // contracts
 
 interface IERC20PermitBase {
-  /// @dev The permit is invalid.
-  error InvalidPermit();
-
-  /// @dev The permit has expired.
-  error PermitExpired();
-
   /// @dev Permit deadline has expired.
   error ERC2612ExpiredSignature(uint256 deadline);
 

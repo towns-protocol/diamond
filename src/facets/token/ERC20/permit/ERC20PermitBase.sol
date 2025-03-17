@@ -53,7 +53,10 @@ abstract contract ERC20PermitBase is
     bytes32 r,
     bytes32 s
   ) external {
-    require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+    if (block.timestamp > deadline) {
+      revert ERC2612ExpiredSignature(deadline);
+    }
+
     bytes32 structHash = keccak256(
       abi.encode(
         _PERMIT_TYPEHASH,
@@ -68,8 +71,12 @@ abstract contract ERC20PermitBase is
     bytes32 hash = _hashTypedDataV4(structHash);
 
     address signer = ECDSA.recover(hash, v, r, s);
-    require(signer == owner, "ERC20Permit: invalid signature");
-    approve(spender, amount);
+    if (signer != owner) {
+      revert ERC2612InvalidSigner(signer, owner);
+    }
+
+    ERC20Storage.layout().inner._approve(owner, spender, amount);
+    emit Approval(owner, spender, amount);
   }
 
   /// @inheritdoc IERC20Permit

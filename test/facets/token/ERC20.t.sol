@@ -10,11 +10,10 @@ import {stdError} from "forge-std/StdError.sol";
 import {LibClone} from "solady/utils/LibClone.sol";
 
 // contracts
-import {Test} from "forge-std/Test.sol";
-import {SoladyTest} from "../../utils/SoladyTest.sol";
 import {MockERC20} from "../../mocks/MockERC20.sol";
+import {SoladyTest} from "../../utils/SoladyTest.sol";
 
-contract ERC20Test is SoladyTest, IERC20PermitBase {
+contract ERC20Test is SoladyTest, IERC20PermitBase, IERC20Errors {
   MockERC20 internal token;
 
   bytes32 internal constant PERMIT_TYPEHASH =
@@ -158,7 +157,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
     token.mint(address(this), 0.9e18);
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientBalance.selector,
+        ERC20InsufficientBalance.selector,
         address(this),
         0.9e18,
         1e18
@@ -177,7 +176,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
 
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientAllowance.selector,
+        ERC20InsufficientAllowance.selector,
         address(this),
         0.9e18,
         1e18
@@ -196,7 +195,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
 
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientBalance.selector,
+        ERC20InsufficientBalance.selector,
         from,
         0.9e18,
         1e18
@@ -301,7 +300,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
     if (t.amount > totalSupply) {
       vm.expectRevert(
         abi.encodeWithSelector(
-          IERC20Errors.ERC20InsufficientBalance.selector,
+          ERC20InsufficientBalance.selector,
           t.owner,
           totalSupply,
           t.amount
@@ -329,7 +328,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
     } else if (t.amount > allowance) {
       vm.expectRevert(
         abi.encodeWithSelector(
-          IERC20Errors.ERC20InsufficientAllowance.selector,
+          ERC20InsufficientAllowance.selector,
           t.to,
           allowance,
           t.amount
@@ -371,7 +370,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
     token.mint(to, mintAmount);
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientBalance.selector,
+        ERC20InsufficientBalance.selector,
         to,
         mintAmount,
         burnAmount
@@ -391,7 +390,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
     token.mint(address(this), mintAmount);
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientBalance.selector,
+        ERC20InsufficientBalance.selector,
         address(this),
         mintAmount,
         sendAmount
@@ -417,7 +416,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
 
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientAllowance.selector,
+        ERC20InsufficientAllowance.selector,
         address(this),
         approval,
         amount
@@ -443,7 +442,7 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
 
     vm.expectRevert(
       abi.encodeWithSelector(
-        IERC20Errors.ERC20InsufficientBalance.selector,
+        ERC20InsufficientBalance.selector,
         from,
         mintAmount,
         sendAmount
@@ -495,8 +494,8 @@ contract ERC20Test is SoladyTest, IERC20PermitBase {
 
     _expectPermitEmitApproval(t);
     _permit(t);
-    //    vm.expectRevert();
-    //    _permit(t);
+    vm.expectRevert();
+    _permit(t);
   }
 
   function _signPermit(_TestTemps memory t) internal view {
