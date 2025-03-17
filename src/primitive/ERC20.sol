@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 
 import {AllowanceMap} from "./AllowanceMap.sol";
@@ -19,6 +18,7 @@ struct MinimalERC20Storage {
 }
 
 /// @notice Rewrite of OpenZeppelin's ERC20Upgradeable adapted to use a flexible storage slot
+/// @dev The library implements the core functionality of an ERC20 token without emitting events
 library ERC20Lib {
   function balanceOf(
     MinimalERC20Storage storage self,
@@ -71,13 +71,9 @@ library ERC20Lib {
     address account,
     uint256 value
   ) internal {
-    if (account == address(0)) {
-      revert IERC20Errors.ERC20InvalidReceiver(address(0));
-    }
     // Overflow check required: The rest of the code assumes that totalSupply never overflows
     self.totalSupply += value;
     _increaseBalance(self, account, value);
-    emit IERC20.Transfer(address(0), account, value);
   }
 
   /// @dev Destroys a `value` amount of tokens from `account`, lowering the total supply.
@@ -86,15 +82,11 @@ library ERC20Lib {
     address account,
     uint256 value
   ) internal {
-    if (account == address(0)) {
-      revert IERC20Errors.ERC20InvalidSender(address(0));
-    }
     _deductBalance(self, account, value);
     unchecked {
       // Overflow not possible: value <= totalSupply or value <= fromBalance <= totalSupply.
       self.totalSupply -= value;
     }
-    emit IERC20.Transfer(account, address(0), value);
   }
 
   /// @dev Sets `value` as the allowance of `spender` over the `owner` s tokens.
@@ -105,7 +97,6 @@ library ERC20Lib {
     uint256 value
   ) internal {
     self.allowances.set(owner, spender, value);
-    emit IERC20.Approval(owner, spender, value);
   }
 
   /// @dev Updates `owner` s allowance for `spender` based on spent `value`.
@@ -142,7 +133,6 @@ library ERC20Lib {
     uint256 value
   ) internal {
     _update(self, from, to, value);
-    emit IERC20.Transfer(from, to, value);
   }
 
   /// @dev Transfers a `value` amount of tokens from `from` to `to`.
@@ -161,7 +151,7 @@ library ERC20Lib {
     MinimalERC20Storage storage self,
     address from,
     uint256 value
-  ) private {
+  ) internal {
     uint256 fromSlot = self.balances.slot(from);
     uint256 fromBalance;
     assembly {
@@ -180,7 +170,7 @@ library ERC20Lib {
     MinimalERC20Storage storage self,
     address to,
     uint256 value
-  ) private {
+  ) internal {
     uint256 toSlot = self.balances.slot(to);
     assembly {
       // Overflow not possible: balance + value is at most totalSupply, which we know fits
