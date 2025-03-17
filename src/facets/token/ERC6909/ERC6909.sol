@@ -6,11 +6,14 @@ import {IERC6909} from "./IERC6909.sol";
 
 // libraries
 import {ERC6909Storage} from "./ERC6909Storage.sol";
+import {ERC6909Lib} from "src/primitive/ERC6909.sol";
 
 // contracts
 import {Facet} from "../../Facet.sol";
 
 abstract contract ERC6909 is Facet, IERC6909 {
+  using ERC6909Lib for ERC6909Lib.MinimalERC6909Storage;
+
   /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
   /*                      ERC6909 METADATA                      */
   /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/

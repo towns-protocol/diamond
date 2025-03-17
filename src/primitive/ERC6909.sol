@@ -4,20 +4,18 @@ pragma solidity ^0.8.19;
 import {MinimalERC20Storage} from "./ERC20.sol";
 import {IERC6909Base} from "../facets/token/ERC6909/IERC6909.sol";
 
-using ERC6909Lib for MinimalERC6909Storage global;
-
-/// @notice Minimal storage layout for ERC6909
-/// @dev Do not modify the layout of this struct especially if it's nested in another struct
-/// or used in a linear storage layout
-struct MinimalERC6909Storage {
-  mapping(uint256 id => MinimalERC20Storage) tokens;
-  mapping(address owner => mapping(address spender => bool)) operatorApprovals;
-}
-
 /// @title ERC6909Lib
 /// @notice Minimal ERC6909 implementation
 /// @dev The library implements the core functionality of an ERC6909 token without emitting events
 library ERC6909Lib {
+  /// @notice Minimal storage layout for ERC6909
+  /// @dev Do not modify the layout of this struct especially if it's nested in another struct
+  /// or used in a linear storage layout
+  struct MinimalERC6909Storage {
+    mapping(uint256 id => MinimalERC20Storage) tokens;
+    mapping(address owner => mapping(address spender => bool)) operatorApprovals;
+  }
+
   /// @notice Returns the total supply of a specific token ID
   /// @param id The token ID to query
   /// @return The total supply of the token
