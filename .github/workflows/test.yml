@@ -46,7 +46,7 @@ jobs:
         run: |
           forge --version
 
-      - name: Run Forge fmt
+      - name: Run Prettier
         run: |
           yarn prettier
         id: fmt
