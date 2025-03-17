@@ -2,6 +2,8 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
@@ -25,38 +27,31 @@ jobs:
         with:
           version: stable
 
-      - uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
         with:
-          node-version: "20"
-
-      - name: Enable Corepack
-        run: corepack enable
-
-      - uses: actions/cache@v4
-        with:
-          path: .yarn/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          bun-version: latest
 
       - name: Install node dependencies
-        run: yarn install --immutable
-
-      - name: Show Forge version
-        run: |
-          forge --version
+        run: bun install
 
       - name: Run Prettier
         run: |
-          yarn prettier
+          bun prettier
         id: fmt
 
       - name: Run Forge build
         run: |
+          forge --version
           forge build --sizes
         id: build
 
       - name: Run Forge tests
         run: |
-          forge test -vvv
+          forge test
         id: test
+
+      - name: Run Forge tests with IR
+        run: |
+          forge test --via-ir
+        id: test_ir
