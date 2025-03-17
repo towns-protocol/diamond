@@ -25,21 +25,13 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     facet = MockERC6909(deployMockERC6909Helper.deploy(deployer));
   }
 
-  modifier givenTokensAreMinted(
-    address to,
-    uint256 tokenId,
-    uint256 amount
-  ) {
+  modifier givenTokensAreMinted(address to, uint256 tokenId, uint256 amount) {
     vm.assume(to != address(0));
     facet.mint(to, tokenId, amount);
     _;
   }
 
-  modifier givenTokensAreBurned(
-    address from,
-    uint256 tokenId,
-    uint256 amount
-  ) {
+  modifier givenTokensAreBurned(address from, uint256 tokenId, uint256 amount) {
     facet.burn(from, tokenId, amount);
     _;
   }
@@ -56,11 +48,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     _;
   }
 
-  modifier givenOperatorIsSet(
-    address to,
-    address operator,
-    bool approved
-  ) {
+  modifier givenOperatorIsSet(address to, address operator, bool approved) {
     vm.prank(to);
     facet.setOperator(operator, approved);
     _;
@@ -260,7 +248,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     vm.assume(owner != receiver);
     vm.assume(spender != receiver);
     vm.assume(amount > 0);
-    vm.assume(approvedAmount < amount);
+    approvedAmount = bound(approvedAmount, 0, amount - 1);
 
     // Approve spender with insufficient allowance
     vm.prank(owner);
@@ -285,8 +273,8 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     vm.assume(owner != spender);
     vm.assume(owner != receiver);
     vm.assume(spender != receiver);
-    vm.assume(mintAmount > 0);
-    vm.assume(transferAmount > mintAmount);
+    mintAmount = bound(mintAmount, 1, type(uint256).max - 1);
+    transferAmount = bound(transferAmount, mintAmount + 1, type(uint256).max);
 
     // Mint tokens
     facet.mint(owner, tokenId, mintAmount);
@@ -337,8 +325,8 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     uint256 burnAmount
   ) public {
     vm.assume(from != ZERO_ADDRESS);
-    vm.assume(mintAmount > 0);
-    vm.assume(burnAmount > mintAmount);
+    mintAmount = bound(mintAmount, 1, type(uint256).max - 1);
+    burnAmount = bound(burnAmount, mintAmount + 1, type(uint256).max);
 
     facet.mint(from, tokenId, mintAmount);
 
