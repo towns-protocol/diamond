@@ -16,5 +16,6 @@ docs/
 node_modules/
 .idea/
 .vscode/
+.wake/
 
 bun.lock
