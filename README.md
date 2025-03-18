@@ -78,7 +78,6 @@ cd diamond
 
 # Install dependencies
 bun install
-forge install
 ```
 
 ### Build
@@ -97,7 +96,6 @@ forge test
 
 ```bash
 bun prettier:fix
-forge fmt
 ```
 
 ## License
