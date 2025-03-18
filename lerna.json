@@ -1,0 +1,15 @@
+{
+  "version": "0.1.0",
+  "npmClient": "bun",
+  "command": {
+    "publish": {
+      "registry": "https://registry.npmjs.org/",
+      "access": "public"
+    },
+    "version": {
+      "allowBranch": "main",
+      "message": "chore(release): publish %s"
+    }
+  },
+  "packages": ["."]
+}
