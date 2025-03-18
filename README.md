@@ -1,10 +1,15 @@
 # Diamond Standard Implementation
 
-An efficient, modular, and upgradeable implementation of the [EIP-2535 Diamond Standard](https://eips.ethereum.org/EIPS/eip-2535) for Ethereum smart contracts.
+[![NPM Package](https://img.shields.io/npm/v/@towns-protocol/diamond.svg)](https://www.npmjs.org/package/@towns-protocol/diamond)
+[![CI Status](https://github.com/towns-protocol/diamond/workflows/CI/badge.svg)](https://github.com/towns-protocol/diamond/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![Solidity Version](https://img.shields.io/badge/solidity-^0.8.29-lightgrey)](https://solidity.readthedocs.io/en/v0.8.29/)
+
+A comprehensive toolkit for building modular smart contracts with the [EIP-2535 Diamond Standard](https://eips.ethereum.org/EIPS/eip-2535). This package provides both the core Diamond contracts and optimized building blocks to create efficient, upgradeable systems.
 
 ## Overview
 
-This repository provides a robust foundation for building modular and upgradeable smart contract systems using the Diamond pattern. The Diamond pattern allows for:
+This repository provides a robust foundation for building modular and upgradeable smart contract systems using the Diamond pattern. It includes not only the Diamond implementation itself but also reusable primitives and facets that serve as building blocks for your contract systems. The Diamond pattern allows for:
 
 - **Unlimited Contract Size**: Bypass the 24KB contract size limit
 - **Modular Design**: Split functionality into logical components (facets)
@@ -16,9 +21,19 @@ This repository provides a robust foundation for building modular and upgradeabl
 The implementation consists of:
 
 - **Diamond Contract**: The main entry point that delegates calls to facets
+- **Loupe Functions**: Methods to inspect the diamond's structure
 - **Facets**: Individual contracts containing specific functionality
 - **Storage**: Shared storage patterns for all facets
-- **Loupe Functions**: Methods to inspect the diamond's structure
+
+## Building Blocks
+
+This toolkit provides several reusable components that can be used independently or together:
+
+- **Storage Primitives**: Efficient data structures like HashMap and AllowanceMap for optimal gas usage
+- **Token Facets**: Ready-to-use implementations of popular token standards (ERC20, ERC721, ERC6909)
+- **Utility Facets**: Common utilities like ownership, pausability, and reentrancy guards
+
+Each building block is designed to be modular, allowing you to pick and choose the components you need for your specific use case.
 
 ### Core Facets
 
