@@ -25,21 +25,13 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     facet = MockERC6909(deployMockERC6909Helper.deploy(deployer));
   }
 
-  modifier givenTokensAreMinted(
-    address to,
-    uint256 tokenId,
-    uint256 amount
-  ) {
+  modifier givenTokensAreMinted(address to, uint256 tokenId, uint256 amount) {
     vm.assume(to != address(0));
     facet.mint(to, tokenId, amount);
     _;
   }
 
-  modifier givenTokensAreBurned(
-    address from,
-    uint256 tokenId,
-    uint256 amount
-  ) {
+  modifier givenTokensAreBurned(address from, uint256 tokenId, uint256 amount) {
     facet.burn(from, tokenId, amount);
     _;
   }
@@ -56,11 +48,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
     _;
   }
 
-  modifier givenOperatorIsSet(
-    address owner,
-    address operator,
-    bool approved
-  ) {
+  modifier givenOperatorIsSet(address owner, address operator, bool approved) {
     vm.prank(owner);
     facet.setOperator(operator, approved);
     _;
