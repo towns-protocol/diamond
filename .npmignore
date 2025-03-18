@@ -1,0 +1,21 @@
+# Development files
+.git/
+.github/
+.vscode/
+.idea/
+.wake/
+.yarn/
+
+# Build artifacts
+cache/
+out/
+node_modules/
+bun.lock
+
+# Test files
+test/
+
+# Misc
+.gitignore
+foundry.toml
+remappings.txt
