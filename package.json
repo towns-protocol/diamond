@@ -1,17 +1,40 @@
 {
-  "name": "@river-build/diamond",
-  "version": "1.2.0",
+  "name": "@towns-protocol/diamond",
+  "version": "0.1.0",
+  "description": "A comprehensive toolkit for building modular smart contracts with the EIP-2535 Diamond Standard, including core contracts and optimized building blocks",
   "main": "index.js",
-  "repository": "git@github.com:river-build/diamond.git",
-  "author": "g <5714678+giuseppecrj@users.noreply.github.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/towns-protocol/diamond.git"
+  },
+  "keywords": [
+    "ethereum",
+    "solidity",
+    "smart-contracts",
+    "diamond-pattern",
+    "eip-2535",
+    "erc20",
+    "erc721",
+    "erc6909",
+    "upgradeable"
+  ],
+  "author": "Towns Protocol <hello@towns.com>",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/towns-protocol/diamond/issues"
+  },
+  "homepage": "https://github.com/towns-protocol/diamond#readme",
   "files": [
     "src/**/*.sol",
-    "scripts/**/*.sol"
+    "scripts/**/*.sol",
+    "README.md"
   ],
   "scripts": {
-    "prettier": "prettier --check src/**/*.sol --config package.json",
-    "prettier:fix": "prettier --write {scripts,src,test}/**/*.sol"
+    "prettier": "prettier -c '{scripts,src,test}/**/*.sol' --config package.json",
+    "prettier:fix": "prettier -w '{scripts,src,test}/**/*.sol'",
+    "build": "forge build",
+    "test": "forge test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.2.0",
@@ -20,6 +43,7 @@
   "devDependencies": {
     "@prb/test": "^0.6.4",
     "forge-std": "github:foundry-rs/forge-std#v1.9.6",
+    "husky": "^9.0.6",
     "prettier": "^3.5.3",
     "prettier-plugin-solidity": "^1.4.1"
   },
