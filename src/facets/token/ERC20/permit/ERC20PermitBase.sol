@@ -6,7 +6,7 @@ import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC2
 import {IERC20PermitBase} from "./IERC20PermitBase.sol";
 
 // libraries
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "solady/utils/ECDSA.sol";
 import {ERC20Storage} from "../ERC20Storage.sol";
 
 // contracts

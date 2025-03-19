@@ -4,8 +4,7 @@ pragma solidity ^0.8.23;
 // interfaces
 
 // libraries
-import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
-import {EIP712Storage} from "./EIP712Storage.sol";
+import {EIP712Storage, EIP712Lib} from "../../primitive/EIP712.sol";
 
 // contracts
 
@@ -32,43 +31,41 @@ import {EIP712Storage} from "./EIP712Storage.sol";
  * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
  */
 abstract contract EIP712Base {
+  using EIP712Lib for EIP712Storage;
+
   bytes32 private constant TYPE_HASH =
     keccak256(
       "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
     );
-  bytes32 private constant EMPTY_STRING_HASH = keccak256("");
+
+  // keccak256(abi.encode(uint256(keccak256("diamond.utils.cryptography.eip712.storage")) - 1)) & ~bytes32(uint256(0xff))
+  bytes32 internal constant STORAGE_SLOT =
+    0x219639d1c7dec7d049ffb8dc11e39f070f052764b142bd61682a7811a502a600;
+
+  function _getEIP712Storage() internal pure returns (EIP712Storage storage $) {
+    assembly {
+      $.slot := STORAGE_SLOT
+    }
+  }
 
   function __EIP712_init_unchained(
     string memory name,
     string memory version
   ) internal {
-    EIP712Storage.Layout storage dl = EIP712Storage.layout();
-    dl.name = name;
-    dl.version = version;
+    EIP712Storage storage $ = _getEIP712Storage();
+    $.name = name;
+    $.version = version;
 
     // Reset prior values in storage if upgrading
-    dl.hashedName = 0;
-    dl.hashedVersion = 0;
+    $.hashedName = 0;
+    $.hashedVersion = 0;
   }
 
   /**
    * @dev Returns the domain separator for the current chain.
    */
   function _domainSeparatorV4() internal view returns (bytes32) {
-    return _buildDomainSeparator();
-  }
-
-  function _buildDomainSeparator() private view returns (bytes32) {
-    return
-      keccak256(
-        abi.encode(
-          TYPE_HASH,
-          _EIP712NameHash(),
-          _EIP712VersionHash(),
-          block.chainid,
-          address(this)
-        )
-      );
+    return _getEIP712Storage().domainSeparatorV4();
   }
 
   /**
@@ -89,7 +86,7 @@ abstract contract EIP712Base {
   function _hashTypedDataV4(
     bytes32 structHash
   ) internal view virtual returns (bytes32) {
-    return MessageHashUtils.toTypedDataHash(_domainSeparatorV4(), structHash);
+    return _getEIP712Storage().hashTypedDataV4(structHash);
   }
 
   /**
@@ -99,7 +96,7 @@ abstract contract EIP712Base {
    * are a concern.
    */
   function _EIP712Name() internal view virtual returns (string memory) {
-    return EIP712Storage.layout().name;
+    return _getEIP712Storage()._EIP712Name();
   }
 
   /**
@@ -109,7 +106,7 @@ abstract contract EIP712Base {
    * are a concern.
    */
   function _EIP712Version() internal view virtual returns (string memory) {
-    return EIP712Storage.layout().version;
+    return _getEIP712Storage()._EIP712Version();
   }
 
   /**
@@ -118,19 +115,7 @@ abstract contract EIP712Base {
    * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
    */
   function _EIP712NameHash() internal view returns (bytes32) {
-    string memory name = _EIP712Name();
-    if (bytes(name).length > 0) {
-      return keccak256(bytes(name));
-    } else {
-      // If the name is empty, the contract may have been upgraded without initializing the new storage.
-      // We return the name hash in storage if non-zero, otherwise we assume the name is empty by design.
-      bytes32 hashedName = EIP712Storage.layout().hashedName;
-      if (hashedName != 0) {
-        return hashedName;
-      } else {
-        return EMPTY_STRING_HASH;
-      }
-    }
+    return _getEIP712Storage()._EIP712NameHash();
   }
 
   /**
@@ -139,18 +124,6 @@ abstract contract EIP712Base {
    * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
    */
   function _EIP712VersionHash() internal view returns (bytes32) {
-    string memory version = _EIP712Version();
-    if (bytes(version).length > 0) {
-      return keccak256(bytes(version));
-    } else {
-      // If the version is empty, the contract may have been upgraded without initializing the new storage.
-      // We return the version hash in storage if non-zero, otherwise we assume the version is empty by design.
-      bytes32 hashedVersion = EIP712Storage.layout().hashedVersion;
-      if (hashedVersion != 0) {
-        return hashedVersion;
-      } else {
-        return EMPTY_STRING_HASH;
-      }
-    }
+    return _getEIP712Storage()._EIP712VersionHash();
   }
 }
