@@ -6,19 +6,19 @@ import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/IERC2
 import {IERC20PermitBase} from "./IERC20PermitBase.sol";
 
 // libraries
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {ECDSA} from "solady/utils/ECDSA.sol";
 import {ERC20Storage} from "../ERC20Storage.sol";
 
 // contracts
 import {Nonces} from "../../../../utils/Nonces.sol";
-import {EIP712} from "../../../../utils/cryptography/EIP712.sol";
+import {EIP712Base} from "../../../../utils/cryptography/EIP712Base.sol";
 import {ERC20} from "../ERC20.sol";
 
 abstract contract ERC20PermitBase is
   IERC20PermitBase,
   IERC20Permit,
   ERC20,
-  EIP712,
+  EIP712Base,
   Nonces
 {
   function __ERC20PermitBase_init(
