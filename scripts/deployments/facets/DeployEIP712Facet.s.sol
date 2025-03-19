@@ -8,7 +8,7 @@ pragma solidity ^0.8.23;
 //contracts
 import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
 import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
-import {EIP712Facet} from "../../../src/utils/cryptography/signature/EIP712Facet.sol";
+import {EIP712Facet} from "../../../src/utils/cryptography/EIP712Facet.sol";
 
 contract DeployEIP712Facet is FacetHelper, SimpleDeployer {
   constructor() {

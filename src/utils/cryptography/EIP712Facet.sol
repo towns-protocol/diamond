@@ -9,13 +9,25 @@ import {EIP712Storage} from "./EIP712Storage.sol";
 
 // contracts
 import {EIP712Base} from "./EIP712Base.sol";
-import {Nonces} from "../../Nonces.sol";
-import {Facet} from "../../../facets/Facet.sol";
+import {Nonces} from "../Nonces.sol";
+import {Facet} from "../../facets/Facet.sol";
 
 contract EIP712Facet is IERC5267, EIP712Base, Nonces, Facet {
+  /**
+   * @dev Initializes the domain separator and parameter caches.
+   *
+   * The meaning of `name` and `version` is specified in
+   * https://eips.ethereum.org/EIPS/eip-712#definition-of-domainseparator[EIP-712]:
+   *
+   * - `name`: the user readable name of the signing domain, i.e. the name of the DApp or the protocol.
+   * - `version`: the current major version of the signing domain.
+   *
+   * NOTE: These parameters cannot be changed except through a xref:learn::upgrading-smart-contracts.adoc[smart
+   * contract upgrade].
+   */
   function __EIP712_init(
-    string calldata name,
-    string calldata version
+    string memory name,
+    string memory version
   ) external onlyInitializing {
     __EIP712_init_unchained(name, version);
   }
@@ -55,8 +67,8 @@ contract EIP712Facet is IERC5267, EIP712Base, Nonces, Facet {
 
     return (
       hex"0f", // 01111
-      dl.name,
-      dl.version,
+      _EIP712Name(),
+      _EIP712Version(),
       block.chainid,
       address(this),
       bytes32(0),
