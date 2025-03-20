@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-// interfaces
 import {IDiamond} from "../../../src/IDiamond.sol";
-
-// libraries
-
-// contracts
 
 abstract contract FacetHelper is IDiamond {
   bytes4[] public functionSelectors;
@@ -16,22 +11,8 @@ abstract contract FacetHelper is IDiamond {
     return bytes4(0);
   }
 
-  /// @dev Deploy facet contract in constructor and return address for testing.
-  function facet() public view virtual returns (address) {
-    return address(0);
-  }
-
   function selectors() public virtual returns (bytes4[] memory) {
     return functionSelectors;
-  }
-
-  function makeCut(FacetCutAction action) public returns (FacetCut memory) {
-    return
-      FacetCut({
-        action: action,
-        facetAddress: facet(),
-        functionSelectors: selectors()
-      });
   }
 
   function makeCut(
@@ -52,26 +33,31 @@ abstract contract FacetHelper is IDiamond {
     return abi.encodeWithSelector(initializer());
   }
 
-  // =============================================================
-  //                           Selector
-  // =============================================================
   function addSelector(bytes4 selector) public {
     functionSelectors.push(selector);
   }
 
   function addSelectors(bytes4[] memory selectors_) public {
-    for (uint256 i = 0; i < selectors_.length; i++) {
+    for (uint256 i; i < selectors_.length; ++i) {
       functionSelectors.push(selectors_[i]);
     }
   }
 
   function removeSelector(bytes4 selector) public {
-    for (uint256 i = 0; i < functionSelectors.length; i++) {
+    for (uint256 i; i < functionSelectors.length; ++i) {
       if (functionSelectors[i] == selector) {
         functionSelectors[i] = functionSelectors[functionSelectors.length - 1];
         functionSelectors.pop();
         break;
       }
     }
+  }
+
+  function facetInitHelper(
+    address deployer,
+    address facetAddress
+  ) external virtual returns (IDiamond.FacetCut memory, bytes memory) {
+    bytes memory initData = abi.encode(deployer);
+    return (makeCut(facetAddress, FacetCutAction.Add), makeInitData(initData));
   }
 }

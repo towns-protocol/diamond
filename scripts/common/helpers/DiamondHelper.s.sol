@@ -6,7 +6,7 @@ pragma solidity ^0.8.0;
 //libraries
 
 //contracts
-import {IDiamond} from "../../../src/Diamond.sol";
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 abstract contract DiamondHelper is IDiamond {
   string public name = "DiamondHelper";
