@@ -15,6 +15,8 @@ if [[ "$(git status --porcelain)" != "" ]]; then
     exit 1
 fi
 
+INPUT_VERSION="$1"
+
 # get the current git hash 
 COMMIT_HASH=$(git rev-parse --short HEAD)
 BRANCH_NAME="release-diamond/${COMMIT_HASH}"
@@ -46,8 +48,13 @@ git commit -m "release diamond ${VERSION_PREFIX}"
 
 git push -u origin "${BRANCH_NAME}"
 
-# Get the new patch version from Lerna and tag it
-npx lerna version patch --yes --force-publish --no-private --tag-version-prefix "${VERSION_PREFIX}"
+# If input version is provided, use it, otherwise use Lerna to get the new patch version
+if [ -z "$INPUT_VERSION" ]; then
+    npx lerna version patch --yes --force-publish --no-private --tag-version-prefix "${VERSION_PREFIX}"
+else
+    echo "Using provided version: ${INPUT_VERSION}"
+    npx lerna version "${INPUT_VERSION}" --yes --force-publish --no-private --tag-version-prefix "${VERSION_PREFIX}"
+fi
 
 PR_DESCRIPTION="$(make_pr_description)"
 
