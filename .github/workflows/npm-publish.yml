@@ -4,6 +4,11 @@ on:
   release:
     types: [created]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to publish (e.g., 0.1.0)"
+        required: false
+        default: ""
 
 jobs:
   publish:
@@ -68,4 +73,4 @@ jobs:
         env:
             GH_TOKEN: ${{ secrets.TOWNS_DIAMOND_PAT }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: ./scripts/publish-to-npm.sh
+        run: ./scripts/publish-to-npm.sh ${{ inputs.version }}

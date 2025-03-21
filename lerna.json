@@ -7,7 +7,7 @@
       "access": "public"
     },
     "version": {
-      "allowBranch": "main",
+      "allowBranch": ["main", "release-*"],
       "message": "chore(release): publish %s"
     }
   },
