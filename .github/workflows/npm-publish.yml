@@ -40,13 +40,6 @@ jobs:
             echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
             export GPG_TTY=$(tty)
 
-      - name: Set up Git user locally
-        run: |
-            git config user.name "GitHub Action Bot"
-            git config user.email "john+bot@towns.com"
-            git config commit.gpgSign true
-            git config user.signingkey ${{ env.KEY_ID }}
-
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
@@ -75,4 +68,9 @@ jobs:
             GH_TOKEN: ${{ secrets.TOWNS_DIAMOND_PAT }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
             GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: ./scripts/publish-to-npm.sh ${{ inputs.version }}
+        run: |
+            git config user.name "GitHub Action Bot"
+            git config user.email "john+bot@towns.com"
+            git config commit.gpgSign false
+            git config user.signingkey ${{ env.KEY_ID }} 
+            ./scripts/publish-to-npm.sh ${{ inputs.version }}
