@@ -74,4 +74,5 @@ jobs:
         env:
             GH_TOKEN: ${{ secrets.TOWNS_DIAMOND_PAT }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: ./scripts/publish-to-npm.sh ${{ inputs.version }}
