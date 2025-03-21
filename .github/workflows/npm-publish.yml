@@ -45,6 +45,13 @@ jobs:
         if: github.event.inputs.version != ''
         run: lerna version ${{ github.event.inputs.version }} --no-push --no-git-tag-version --yes --force-publish
 
+      - name: Authenticate to npm
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Check npm login
+        run: |
+            npm whoami || (echo "Not logged in to npm registry" && exit 1)
+
       - name: Publish to NPM
         run: lerna publish from-package --yes
         env:
