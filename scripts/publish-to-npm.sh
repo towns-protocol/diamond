@@ -10,13 +10,10 @@ function make_pr_description() {
 }
 
 # You must be on main with a clean working directory to run this script.
-# if [[ "$(git status --porcelain)" != "" ]]; then
-#     echo "There are uncommitted changes. Please commit or stash them before running this script."
-#     exit 1
-# elif [[ "$(parse_git_branch)" != "main" ]]; then
-#     echo "You must be on the main branch to run this script."
-#     exit 1
-# fi
+if [[ "$(git status --porcelain)" != "" ]]; then
+    echo "There are uncommitted changes. Please commit or stash them before running this script."
+    exit 1
+fi
 
 # get the current git hash 
 COMMIT_HASH=$(git rev-parse --short HEAD)
@@ -44,16 +41,15 @@ if [ $exit_status_build -ne 0 ]; then
     exit 1
 fi
 
+git add .
+git commit -m "release diamond ${VERSION_PREFIX}"
+
+git push -u origin "${BRANCH_NAME}"
 
 # Get the new patch version from Lerna and tag it
 npx lerna version patch --yes --force-publish --no-private --tag-version-prefix "${VERSION_PREFIX}"
 
-git add .
-git commit -m "release diamond ${VERSION_PREFIX}"
-
 PR_DESCRIPTION="$(make_pr_description)"
-
-git push -u origin "${BRANCH_NAME}"
 
 # Create PR and capture the PR number
 PR_URL=$(gh pr create --base main --head "${BRANCH_NAME}" --title "${PR_TITLE}" --body "${PR_DESCRIPTION}")
