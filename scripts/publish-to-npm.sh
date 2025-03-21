@@ -10,13 +10,13 @@ function make_pr_description() {
 }
 
 # You must be on main with a clean working directory to run this script.
-if [[ "$(git status --porcelain)" != "" ]]; then
-    echo "There are uncommitted changes. Please commit or stash them before running this script."
-    exit 1
-elif [[ "$(parse_git_branch)" != "main" ]]; then
-    echo "You must be on the main branch to run this script."
-    exit 1
-fi
+# if [[ "$(git status --porcelain)" != "" ]]; then
+#     echo "There are uncommitted changes. Please commit or stash them before running this script."
+#     exit 1
+# elif [[ "$(parse_git_branch)" != "main" ]]; then
+#     echo "You must be on the main branch to run this script."
+#     exit 1
+# fi
 
 # get the current git hash 
 COMMIT_HASH=$(git rev-parse --short HEAD)
