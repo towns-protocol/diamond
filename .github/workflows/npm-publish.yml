@@ -51,7 +51,12 @@ jobs:
       - name: Check npm login
         run: |
             npm whoami || (echo "Not logged in to npm registry" && exit 1)
-
+      
+      - name: Check working tree is clean
+        run: |
+          git status
+          git diff
+      
       - name: Publish to NPM
         run: lerna publish from-package --yes --force-publish --ignore-scripts
         env:
