@@ -38,11 +38,12 @@ jobs:
             echo "use-agent" >> ~/.gnupg/gpg.conf
             echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
             echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
+            export GPG_TTY=$(tty)
 
       - name: Set up Git user locally
         run: |
             git config user.name "GitHub Action Bot"
-            git config user.email "john+bot@river.build"
+            git config user.email "john+bot@towns.com"
             git config commit.gpgSign true
             git config user.signingkey ${{ env.KEY_ID }}
 
@@ -73,4 +74,5 @@ jobs:
         env:
             GH_TOKEN: ${{ secrets.TOWNS_DIAMOND_PAT }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+            GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
         run: ./scripts/publish-to-npm.sh ${{ inputs.version }}
