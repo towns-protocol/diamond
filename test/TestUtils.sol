@@ -4,8 +4,9 @@ pragma solidity ^0.8.0;
 import "@prb/test/Helpers.sol" as Helpers;
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "solady/utils/LibString.sol";
+import {Context} from "scripts/common/Context.sol";
 
-contract TestUtils is Test {
+contract TestUtils is Context, Test {
   event LogNamedArray(string key, address[] value);
   event LogNamedArray(string key, bool[] value);
   event LogNamedArray(string key, bytes32[] value);
@@ -13,10 +14,11 @@ contract TestUtils is Test {
   event LogNamedArray(string key, string[] value);
   event LogNamedArray(string key, uint256[] value);
 
-  uint256 private immutable _NONCE;
-
   address public constant NATIVE_TOKEN =
     address(0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE);
+
+  address public constant ZERO_SENTINEL =
+    0x0000000000000000000000fbb67FDa52D4Bfb8Bf;
 
   bytes4 private constant RANDOM_ADDRESS_SIG =
     bytes4(keccak256("randomAddress()"));
@@ -31,7 +33,7 @@ contract TestUtils is Test {
   }
 
   modifier assumeEOA(address account) {
-    vm.assume(account != address(0) && account.code.length == 0);
+    assumeUnusedAddress(account);
     _;
   }
 
@@ -41,21 +43,6 @@ contract TestUtils is Test {
       "LOCAL_PRIVATE_KEY",
       "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
     );
-
-    // solhint-disable
-    _NONCE = uint256(
-      keccak256(
-        abi.encode(
-          tx.origin,
-          tx.origin.balance,
-          block.number,
-          block.timestamp,
-          block.coinbase,
-          gasleft()
-        )
-      )
-    );
-    // solhint-enable
   }
 
   function getMappingValueSlot(
@@ -135,14 +122,6 @@ contract TestUtils is Test {
     for (uint256 i; i < count; ++i) {
       accounts[i] = _randomAddress();
     }
-  }
-
-  function isAnvil() internal view returns (bool) {
-    return block.chainid == 31337 || block.chainid == 31338;
-  }
-
-  function isTesting() internal view returns (bool) {
-    return vm.envOr("IN_TESTING", false);
   }
 
   function getDeployer() internal view returns (address) {
