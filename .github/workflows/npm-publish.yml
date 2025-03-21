@@ -53,6 +53,6 @@ jobs:
             npm whoami || (echo "Not logged in to npm registry" && exit 1)
 
       - name: Publish to NPM
-        run: lerna publish from-package --yes
+        run: lerna publish from-package --yes --force-publish --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
