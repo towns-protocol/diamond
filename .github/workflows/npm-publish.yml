@@ -43,7 +43,7 @@ jobs:
 
       - name: Set version if provided
         if: github.event.inputs.version != ''
-        run: lerna version ${{ github.event.inputs.version }} --no-push --no-git-tag-version --yes --force-publish
+        run: lerna version ${{ github.event.inputs.version }} --no-push --no-git-tag-version --yes --force-publish --allow-branch jt/fix-npm
 
       - name: Authenticate to npm
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
