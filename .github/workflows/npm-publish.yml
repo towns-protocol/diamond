@@ -71,6 +71,6 @@ jobs:
       
       - name: Run Nightly Script
         env:
-            GH_TOKEN: ${{ secrets.TOWNS_DIMAOND_PAT }}
+            GH_TOKEN: ${{ secrets.TOWNS_DIAMOND_PAT }}
             NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: ./scripts/publish-to-npm.sh
