@@ -41,9 +41,9 @@ jobs:
       - name: Run tests
         run: forge test
 
-      - name: Set version if provided
-        if: github.event.inputs.version != ''
-        run: lerna version ${{ github.event.inputs.version }} --no-push --no-git-tag-version --yes --force-publish --allow-branch jt/fix-npm
+      #- name: Set version if provided
+      #  if: github.event.inputs.version != ''
+      #  run: lerna version ${{ github.event.inputs.version }} --no-push --no-git-tag-version --yes --force-publish --allow-branch jt/fix-npm
 
       - name: Authenticate to npm
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
@@ -58,6 +58,6 @@ jobs:
           git diff
       
       - name: Publish to NPM
-        run: lerna publish from-package --yes --force-publish --ignore-scripts
+        run: lerna publish from-package --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
