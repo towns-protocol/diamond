@@ -8,8 +8,9 @@ import {TestUtils} from "test/TestUtils.sol";
 import {IDiamond} from "src/Diamond.sol";
 
 // libraries
-import {EIP712Utils} from "test/facets/signature/EIP712Utils.sol";
+
 // contracts
+import {EIP712Utils} from "test/facets/signature/EIP712Utils.sol";
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
 import {DeployMockERC20Permit} from "scripts/deployments/mocks/DeployMockERC20Permit.s.sol";
 
