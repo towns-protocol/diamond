@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.1",
   "npmClient": "bun",
   "command": {
     "publish": {
@@ -7,9 +7,14 @@
       "access": "public"
     },
     "version": {
-      "allowBranch": ["main", "release-diamond/*"],
+      "allowBranch": [
+        "main",
+        "release-diamond/*"
+      ],
       "message": "chore(release): publish %s"
     }
   },
-  "packages": ["."]
+  "packages": [
+    "."
+  ]
 }
