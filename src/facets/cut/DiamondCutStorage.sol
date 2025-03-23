@@ -17,6 +17,7 @@ library DiamondCutStorage {
   /// @param facet Set of facets
   /// @param facetBySelector Mapping of function selectors to their facet
   /// @param selectorsByFacet Mapping of facet to function selectors
+  // @custom:storage-location erc7201:diamond.facets.cut.storage
   struct Layout {
     EnumerableSet.AddressSet facets;
     mapping(bytes4 selector => address facet) facetBySelector;

@@ -109,12 +109,13 @@ library DiamondCutBase {
   /// @param facet The new facet
   /// @param selectors The selectors for the facet
   function _replaceFacet(address facet, bytes4[] memory selectors) internal {
-    DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
-
     if (facet == address(this))
       revert IDiamondCutBase.DiamondCut_ImmutableFacet();
 
-    if (!ds.facets.contains(facet)) ds.facets.add(facet);
+    DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
+    EnumerableSet.AddressSet storage currentFacets = ds.facets;
+
+    if (!currentFacets.contains(facet)) currentFacets.add(facet);
 
     uint256 selectorCount = selectors.length;
 
@@ -125,8 +126,9 @@ library DiamondCutBase {
 
       address oldFacet = ds.facetBySelector[selector];
 
-      if (oldFacet == address(this))
+      if (oldFacet == address(this)) {
         revert IDiamondCutBase.DiamondCut_ImmutableFacet();
+      }
 
       if (oldFacet == address(0)) {
         revert IDiamondCutBase.DiamondCut_FunctionDoesNotExist(facet);
@@ -141,12 +143,18 @@ library DiamondCutBase {
       // overwrite selector to new facet
       ds.facetBySelector[selector] = facet;
 
-      ds.selectorsByFacet[oldFacet].remove(selector);
+      // remove selector from old facet
+      EnumerableSet.Bytes32Set storage oldFacetSelectors = ds.selectorsByFacet[
+        oldFacet
+      ];
+      oldFacetSelectors.remove(selector);
 
+      // add selector to new facet
       ds.selectorsByFacet[facet].add(selector);
 
-      if (ds.selectorsByFacet[oldFacet].length() == 0) {
-        ds.facets.remove(oldFacet);
+      // remove old facet if it has no selectors
+      if (oldFacetSelectors.length() == 0) {
+        currentFacets.remove(oldFacet);
       }
     }
   }
