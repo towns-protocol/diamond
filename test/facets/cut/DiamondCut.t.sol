@@ -17,11 +17,13 @@ import {Errors} from "@openzeppelin/contracts/utils/Errors.sol";
 
 // contracts
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
+import {DeployDiamondCut} from "scripts/deployments/facets/DeployDiamondCut.s.sol";
 import {DeployMockFacet, MockFacet} from "test/mocks/MockFacet.sol";
 
 contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
   DeployMockFacet mockFacetHelper = new DeployMockFacet();
   DeployDiamond diamondHelper = new DeployDiamond();
+  DeployDiamondCut diamondCutHelper = new DeployDiamondCut();
 
   address diamond;
   address deployer;
@@ -326,6 +328,24 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
       })
     );
     vm.expectRevert(DiamondCut_ImmutableFacet.selector);
+    vm.prank(deployer);
+    diamondCut.diamondCut(facetCuts, address(0), "");
+  }
+
+  function test_revertWhenReplacingDiamondCut() external {
+    address cutFacet = diamondCutHelper.deploy(deployer);
+    bytes4[] memory selectors = new bytes4[](1);
+    selectors[0] = IDiamondCut.diamondCut.selector;
+
+    facetCuts.push(
+      IDiamond.FacetCut({
+        facetAddress: address(cutFacet),
+        action: IDiamond.FacetCutAction.Replace,
+        functionSelectors: selectors
+      })
+    );
+
+    vm.expectRevert(DiamondCut_InvalidSelector.selector);
     vm.prank(deployer);
     diamondCut.diamondCut(facetCuts, address(0), "");
   }
