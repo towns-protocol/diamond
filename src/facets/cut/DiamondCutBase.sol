@@ -51,7 +51,8 @@ library DiamondCutBase {
     DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
 
     // add facet to diamond storage
-    if (!ds.facets.contains(facet)) ds.facets.add(facet);
+    // EnumerableSet will not add if the facet is already in the set
+    ds.facets.add(facet);
 
     uint256 selectorCount = selectors.length;
 
@@ -115,7 +116,8 @@ library DiamondCutBase {
     DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
     EnumerableSet.AddressSet storage currentFacets = ds.facets;
 
-    if (!currentFacets.contains(facet)) currentFacets.add(facet);
+    // EnumerableSet will not add if the facet is already in the set
+    currentFacets.add(facet);
 
     uint256 selectorCount = selectors.length;
 
