@@ -22,10 +22,12 @@ library DiamondCutBase {
     address init,
     bytes memory initPayload
   ) internal {
-    if (facetCuts.length == 0)
+    uint256 facetCutLength = facetCuts.length;
+
+    if (facetCutLength == 0)
       revert IDiamondCutBase.DiamondCut_InvalidFacetCutLength();
 
-    for (uint256 i; i < facetCuts.length; ++i) {
+    for (uint256 i; i < facetCutLength; ++i) {
       IDiamond.FacetCut memory facetCut = facetCuts[i];
 
       _validateFacetCut(facetCut);
