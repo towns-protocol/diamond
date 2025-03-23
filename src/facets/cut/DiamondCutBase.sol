@@ -2,7 +2,7 @@
 pragma solidity ^0.8.23;
 
 // interfaces
-import {IDiamondCutBase} from "./IDiamondCut.sol";
+import {IDiamondCutBase, IDiamondCut} from "./IDiamondCut.sol";
 import {IDiamond} from "../../IDiamond.sol";
 
 // libraries
@@ -22,10 +22,12 @@ library DiamondCutBase {
     address init,
     bytes memory initPayload
   ) internal {
-    if (facetCuts.length == 0)
+    uint256 facetCutLength = facetCuts.length;
+
+    if (facetCutLength == 0)
       revert IDiamondCutBase.DiamondCut_InvalidFacetCutLength();
 
-    for (uint256 i; i < facetCuts.length; i++) {
+    for (uint256 i; i < facetCutLength; ++i) {
       IDiamond.FacetCut memory facetCut = facetCuts[i];
 
       _validateFacetCut(facetCut);
@@ -51,12 +53,13 @@ library DiamondCutBase {
     DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
 
     // add facet to diamond storage
-    if (!ds.facets.contains(facet)) ds.facets.add(facet);
+    // EnumerableSet will not add if the facet is already in the set
+    ds.facets.add(facet);
 
     uint256 selectorCount = selectors.length;
 
     // add selectors to diamond storage
-    for (uint256 i; i < selectorCount; ) {
+    for (uint256 i; i < selectorCount; ++i) {
       bytes4 selector = selectors[i];
 
       if (selector == bytes4(0)) {
@@ -69,10 +72,6 @@ library DiamondCutBase {
 
       ds.facetBySelector[selector] = facet;
       ds.selectorsByFacet[facet].add(selector);
-
-      unchecked {
-        i++;
-      }
     }
   }
 
@@ -88,12 +87,12 @@ library DiamondCutBase {
     if (!ds.facets.contains(facet))
       revert IDiamondCutBase.DiamondCut_InvalidFacet(facet);
 
-    for (uint256 i; i < selectors.length; i++) {
+    uint256 selectorCount = selectors.length;
+
+    for (uint256 i; i < selectorCount; ++i) {
       bytes4 selector = selectors[i];
 
-      if (selector == bytes4(0)) {
-        revert IDiamondCutBase.DiamondCut_InvalidSelector();
-      }
+      _validateSelector(selector);
 
       if (ds.facetBySelector[selector] != facet) {
         revert IDiamondCutBase.DiamondCut_InvalidFacetRemoval(facet, selector);
@@ -113,26 +112,27 @@ library DiamondCutBase {
   /// @param facet The new facet
   /// @param selectors The selectors for the facet
   function _replaceFacet(address facet, bytes4[] memory selectors) internal {
-    DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
-
     if (facet == address(this))
       revert IDiamondCutBase.DiamondCut_ImmutableFacet();
 
-    if (!ds.facets.contains(facet)) ds.facets.add(facet);
+    DiamondCutStorage.Layout storage ds = DiamondCutStorage.layout();
+    EnumerableSet.AddressSet storage currentFacets = ds.facets;
+
+    // EnumerableSet will not add if the facet is already in the set
+    currentFacets.add(facet);
 
     uint256 selectorCount = selectors.length;
 
-    for (uint256 i; i < selectorCount; ) {
+    for (uint256 i; i < selectorCount; ++i) {
       bytes4 selector = selectors[i];
 
-      if (selector == bytes4(0)) {
-        revert IDiamondCutBase.DiamondCut_InvalidSelector();
-      }
+      _validateSelector(selector);
 
       address oldFacet = ds.facetBySelector[selector];
 
-      if (oldFacet == address(this))
+      if (oldFacet == address(this)) {
         revert IDiamondCutBase.DiamondCut_ImmutableFacet();
+      }
 
       if (oldFacet == address(0)) {
         revert IDiamondCutBase.DiamondCut_FunctionDoesNotExist(facet);
@@ -147,16 +147,18 @@ library DiamondCutBase {
       // overwrite selector to new facet
       ds.facetBySelector[selector] = facet;
 
-      ds.selectorsByFacet[oldFacet].remove(selector);
+      // remove selector from old facet
+      EnumerableSet.Bytes32Set storage oldFacetSelectors = ds.selectorsByFacet[
+        oldFacet
+      ];
+      oldFacetSelectors.remove(selector);
 
+      // add selector to new facet
       ds.selectorsByFacet[facet].add(selector);
 
-      if (ds.selectorsByFacet[oldFacet].length() == 0) {
-        ds.facets.remove(oldFacet);
-      }
-
-      unchecked {
-        i++;
+      // remove old facet if it has no selectors
+      if (oldFacetSelectors.length() == 0) {
+        currentFacets.remove(oldFacet);
       }
     }
   }
@@ -179,6 +181,16 @@ library DiamondCutBase {
       revert IDiamondCutBase.DiamondCut_InvalidFacetSelectors(
         facetCut.facetAddress
       );
+    }
+  }
+
+  function _validateSelector(bytes4 selector) internal pure {
+    if (selector == bytes4(0)) {
+      revert IDiamondCutBase.DiamondCut_InvalidSelector();
+    }
+
+    if (selector == IDiamondCut.diamondCut.selector) {
+      revert IDiamondCutBase.DiamondCut_InvalidSelector();
     }
   }
 

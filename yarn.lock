@@ -17,9 +17,9 @@
   resolved "https://registry.yarnpkg.com/@solidity-parser/parser/-/parser-0.19.0.tgz#37a8983b2725af9b14ff8c4a475fa0e98d773c3f"
   integrity sha512-RV16k/qIxW/wWc+mLzV3ARyKUaMUTBy9tOLMzFhtNSKYeTAanQ3a5MudJKf/8arIFnA2L27SNjarQKmFg0w/jA==
 
-"forge-std@github:foundry-rs/forge-std#v1.9.6":
-  version "1.9.6"
-  resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/3b20d60d14b343ee4f908cb8079495c07f5e8981"
+"forge-std@github:foundry-rs/forge-std#v1.9.5":
+  version "1.9.5"
+  resolved "https://codeload.github.com/foundry-rs/forge-std/tar.gz/b93cf4bc34ff214c099dc970b153f85ade8c9f66"
 
 husky@^9.0.6:
   version "9.1.7"
