@@ -19,3 +19,4 @@ node_modules/
 .wake/
 
 bun.lock
+yarn.lock
