@@ -19,7 +19,6 @@ import {MockERC20Permit} from "test/mocks/MockERC20Permit.sol";
 
 contract EIP712Test is TestUtils, EIP712Utils {
   DeployDiamond diamondHelper = new DeployDiamond();
-  DeployMockERC20Permit mockERC20PermitHelper = new DeployMockERC20Permit();
 
   string public constant NAME = "River";
   string public constant SYMBOL = "RVR";
@@ -31,15 +30,15 @@ contract EIP712Test is TestUtils, EIP712Utils {
 
   function setUp() public {
     deployer = getDeployer();
-    address mockERC20PermitAddress = mockERC20PermitHelper.deploy(deployer);
+    address mockERC20PermitAddress = DeployMockERC20Permit.deploy(deployer);
 
     diamondHelper.addFacet(
-      mockERC20PermitHelper.makeCut(
+      DeployMockERC20Permit.makeCut(
         mockERC20PermitAddress,
         IDiamond.FacetCutAction.Add
       ),
       mockERC20PermitAddress,
-      mockERC20PermitHelper.makeInitData(NAME, SYMBOL, 18)
+      DeployMockERC20Permit.makeInitData(NAME, SYMBOL, 18)
     );
 
     diamond = diamondHelper.deploy(deployer);
