@@ -4,13 +4,12 @@ pragma solidity ^0.8.0;
 //interfaces
 
 //libraries
+import {LibString} from "solady/utils/LibString.sol";
 
 //contracts
 import {DeployBase} from "../DeployBase.s.sol";
 
 abstract contract SimpleDeployer is DeployBase {
-  constructor() DeployBase() {}
-
   // override this with the name of the deployment version that this script deploys
   function versionName() public view virtual returns (string memory);
 
@@ -27,26 +26,33 @@ abstract contract SimpleDeployer is DeployBase {
   // - invoke __deploy() with the private key
   // - save the deployment to `deployments/<network>/<contract>.json`
   function deploy() public virtual returns (address deployedAddr) {
-    return deploy(_msgSender());
+    return deploy(msg.sender);
   }
 
   function deploy(
     address deployer
   ) public virtual returns (address deployedAddr) {
+    return deploy(deployer, versionName());
+  }
+
+  function deploy(
+    address deployer,
+    string memory versionName_
+  ) internal virtual returns (address deployedAddr) {
     bool overrideDeployment = vm.envOr("OVERRIDE_DEPLOYMENTS", uint256(0)) > 0;
 
     address existingAddr = isTesting()
       ? address(0)
-      : getDeployment(versionName());
+      : getDeployment(versionName_);
 
     if (!overrideDeployment && existingAddr != address(0)) {
       info(
         string.concat(
           unicode"📝 using an existing address for ",
-          versionName(),
+          versionName_,
           " at"
         ),
-        vm.toString(existingAddr)
+        LibString.toHexStringChecksummed(existingAddr)
       );
       return existingAddr;
     }
@@ -55,12 +61,12 @@ abstract contract SimpleDeployer is DeployBase {
       info(
         string.concat(
           unicode"deploying \n\t📜 ",
-          versionName(),
+          versionName_,
           unicode"\n\t⚡️ on ",
           chainIdAlias(),
           unicode"\n\t📬 from deployer address"
         ),
-        vm.toString(deployer)
+        LibString.toHexStringChecksummed(deployer)
       );
     }
 
@@ -69,35 +75,17 @@ abstract contract SimpleDeployer is DeployBase {
 
     if (!isTesting()) {
       info(
-        string.concat(unicode"✅ ", versionName(), " deployed at"),
-        vm.toString(deployedAddr)
+        string.concat(unicode"✅ ", versionName_, " deployed at"),
+        LibString.toHexStringChecksummed(deployedAddr)
       );
 
       if (deployedAddr != address(0)) {
-        saveDeployment(versionName(), deployedAddr);
+        saveDeployment(versionName_, deployedAddr);
       }
     }
   }
 
   function run() public virtual {
-    bytes memory data = abi.encodeWithSignature("deploy()");
-
-    // we use a dynamic call to call deploy as we do not want to prescribe a return type
-    (bool success, bytes memory returnData) = address(this).delegatecall(data);
-    if (!success) {
-      if (returnData.length > 0) {
-        /// @solidity memory-safe-assembly
-        assembly {
-          let returnDataSize := mload(returnData)
-          revert(add(32, returnData), returnDataSize)
-        }
-      } else {
-        revert("FAILED_TO_CALL: deploy()");
-      }
-    }
-  }
-
-  function _msgSender() internal view returns (address) {
-    return msg.sender;
+    deploy();
   }
 }

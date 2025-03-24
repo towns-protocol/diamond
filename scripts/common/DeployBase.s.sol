@@ -12,33 +12,6 @@ import {DeployHelpers} from "./DeployHelpers.s.sol";
 import {Context} from "./Context.sol";
 
 abstract contract DeployBase is Context, DeployHelpers, Script {
-  constructor() {
-    setChain(
-      "river",
-      ChainData({
-        name: "river",
-        chainId: 550,
-        rpcUrl: "https://mainnet.rpc.towns.com/"
-      })
-    );
-    setChain(
-      "river_anvil",
-      ChainData({
-        name: "river_anvil",
-        chainId: 31338,
-        rpcUrl: "http://localhost:8546"
-      })
-    );
-    setChain(
-      "river_devnet",
-      ChainData({
-        name: "river_devnet",
-        chainId: 6524490,
-        rpcUrl: "https://testnet.rpc.towns.com/http"
-      })
-    );
-  }
-
   // =============================================================
   //                      DEPLOYMENT HELPERS
   // =============================================================
@@ -51,16 +24,21 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
     return getInitialStringFromChar(chainAlias, "_", chainAlias);
   }
 
+  /// @dev Override to set the deployment cache path
+  function deploymentCachePath() internal pure virtual returns (string memory) {
+    return "contracts/deployments";
+  }
+
   function networkDirPath() internal returns (string memory path) {
     string memory context = getDeploymentContext();
     string memory chainAlias = chainIdAlias();
 
     // if no context is provided, use the default path
     if (bytes(context).length == 0) {
-      context = string.concat(DEPLOYMENT_CACHE_PATH, "/", chainAlias);
+      context = string.concat(deploymentCachePath(), "/", chainAlias);
     } else {
       context = string.concat(
-        DEPLOYMENT_CACHE_PATH,
+        deploymentCachePath(),
         "/",
         context,
         "/",
@@ -123,12 +101,12 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
     string memory path = addressesPath(versionName, networkDir);
 
     // save deployment
+    debug("saving deployment to: ", path);
     string memory contractJson = vm.serializeAddress(
       "addresses",
       "address",
       contractAddr
     );
-    debug("saving deployment to: ", path);
     vm.writeJson(contractJson, path);
   }
 
