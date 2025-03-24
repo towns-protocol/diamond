@@ -18,5 +18,4 @@ node_modules/
 .vscode/
 .wake/
 
-bun.lock
-yarn.lock
+*.lock
