@@ -2,17 +2,15 @@
 pragma solidity ^0.8.23;
 
 // interfaces
+import {IDiamond} from "src/IDiamond.sol";
 
 // libraries
+import {DeployLib} from "scripts/common/DeployLib.sol";
 
 // contracts
-import {DeployLib} from "scripts/common/DeployLib.sol";
-import {SimpleDeployer} from "scripts/common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "scripts/common/helpers/FacetHelper.s.sol";
 import {MockERC20Permit} from "test/mocks/MockERC20Permit.sol";
 import {ERC20} from "src/facets/token/ERC20/ERC20.sol";
 import {ERC20PermitBase} from "src/facets/token/ERC20/permit/ERC20PermitBase.sol";
-import {IDiamond} from "src/IDiamond.sol";
 
 library DeployMockERC20Permit {
   function selectors() internal pure returns (bytes4[] memory _selectors) {
@@ -59,12 +57,7 @@ library DeployMockERC20Permit {
       );
   }
 
-  function deploy(address deployer) internal returns (address) {
-    return
-      DeployLib.deployCode(
-        deployer,
-        "./out/MockERC20Permit.sol/MockERC20Permit.json",
-        ""
-      );
+  function deploy() internal returns (address) {
+    return DeployLib.deployCode("MockERC20Permit.sol", "");
   }
 }

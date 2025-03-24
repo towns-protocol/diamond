@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 //interfaces
 
 //libraries
-import {LibString} from "solady/utils/LibString.sol";
 
 //contracts
 import {DeployBase} from "../DeployBase.s.sol";
@@ -32,57 +31,7 @@ abstract contract SimpleDeployer is DeployBase {
   function deploy(
     address deployer
   ) public virtual returns (address deployedAddr) {
-    return deploy(deployer, versionName());
-  }
-
-  function deploy(
-    address deployer,
-    string memory versionName_
-  ) internal virtual returns (address deployedAddr) {
-    bool overrideDeployment = vm.envOr("OVERRIDE_DEPLOYMENTS", uint256(0)) > 0;
-
-    address existingAddr = isTesting()
-      ? address(0)
-      : getDeployment(versionName_);
-
-    if (!overrideDeployment && existingAddr != address(0)) {
-      info(
-        string.concat(
-          unicode"📝 using an existing address for ",
-          versionName_,
-          " at"
-        ),
-        LibString.toHexStringChecksummed(existingAddr)
-      );
-      return existingAddr;
-    }
-
-    if (!isTesting()) {
-      info(
-        string.concat(
-          unicode"deploying \n\t📜 ",
-          versionName_,
-          unicode"\n\t⚡️ on ",
-          chainIdAlias(),
-          unicode"\n\t📬 from deployer address"
-        ),
-        LibString.toHexStringChecksummed(deployer)
-      );
-    }
-
-    // call __deploy hook
-    deployedAddr = __deploy(deployer);
-
-    if (!isTesting()) {
-      info(
-        string.concat(unicode"✅ ", versionName_, " deployed at"),
-        LibString.toHexStringChecksummed(deployedAddr)
-      );
-
-      if (deployedAddr != address(0)) {
-        saveDeployment(versionName_, deployedAddr);
-      }
-    }
+    return deploy(deployer, versionName(), __deploy);
   }
 
   function run() public virtual {

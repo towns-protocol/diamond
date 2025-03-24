@@ -30,7 +30,9 @@ contract EIP712Test is TestUtils, EIP712Utils {
 
   function setUp() public {
     deployer = getDeployer();
-    address mockERC20PermitAddress = DeployMockERC20Permit.deploy(deployer);
+    vm.startPrank(deployer);
+    address mockERC20PermitAddress = DeployMockERC20Permit.deploy();
+    vm.stopPrank();
 
     diamondHelper.addFacet(
       DeployMockERC20Permit.makeCut(
