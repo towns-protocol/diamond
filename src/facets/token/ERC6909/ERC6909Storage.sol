@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.23;
 
-import {ERC6909Lib} from "src/primitive/ERC6909.sol";
+import {ERC6909Lib} from "../../../primitive/ERC6909.sol";
 
 library ERC6909Storage {
   // keccak256(abi.encode(uint256(keccak256("diamond.facets.token.ERC6909")) - 1)) & ~bytes32(uint256(0xff))

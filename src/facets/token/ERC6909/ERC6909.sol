@@ -6,7 +6,7 @@ import {IERC6909} from "./IERC6909.sol";
 
 // libraries
 import {ERC6909Storage} from "./ERC6909Storage.sol";
-import {ERC6909Lib} from "src/primitive/ERC6909.sol";
+import {ERC6909Lib} from "../../../primitive/ERC6909.sol";
 
 // contracts
 import {Facet} from "../../Facet.sol";
