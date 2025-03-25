@@ -1,6 +1,6 @@
 {
   "name": "@towns-protocol/diamond",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A comprehensive toolkit for building modular smart contracts with the EIP-2535 Diamond Standard, including core contracts and optimized building blocks",
   "main": "index.js",
   "repository": {
@@ -39,9 +39,9 @@
   },
   "dependencies": {
     "@openzeppelin/contracts": "^5.2.0",
-    "solady": "^0.1.12",
     "@prb/test": "^0.6.4",
-    "forge-std": "github:foundry-rs/forge-std#v1.9.6"
+    "forge-std": "github:foundry-rs/forge-std#v1.9.6",
+    "solady": "^0.1.12"
   },
   "devDependencies": {
     "husky": "^9.0.6",
