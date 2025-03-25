@@ -94,6 +94,11 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
     return sliceBefore(chainAlias, "_", chainAlias);
   }
 
+  /// @dev Override to set the artifact output directory
+  function outDir() internal pure virtual returns (string memory) {
+    return "out/";
+  }
+
   /// @dev Override to set the deployment cache path
   function deploymentCachePath() internal pure virtual returns (string memory) {
     return "deployments";
