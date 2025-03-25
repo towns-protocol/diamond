@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import {contains} from "@prb/test/Helpers.sol";
 import {Test} from "forge-std/Test.sol";
 import {LibString} from "solady/utils/LibString.sol";
-import {Context} from "scripts/common/Context.sol";
+import {Context} from "../scripts/common/Context.sol";
 
 contract TestUtils is Context, Test {
   event LogNamedArray(string key, address[] value);
