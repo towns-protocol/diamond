@@ -6,6 +6,7 @@ optimizer_runs = 4294967295
 src = "src"
 out = "out"
 test = "test"
+script = "scripts"
 libs = ["node_modules"]
 verbosity = 3 # The verbosity level to use during tests.
 
