@@ -1,6 +1,6 @@
 {
   "name": "@towns-protocol/diamond",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "A comprehensive toolkit for building modular smart contracts with the EIP-2535 Diamond Standard, including core contracts and optimized building blocks",
   "main": "index.js",
   "repository": {
