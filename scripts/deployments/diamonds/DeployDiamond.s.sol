@@ -18,7 +18,7 @@ import {DeployOwnablePending} from "../facets/DeployOwnablePending.s.sol";
 
 // utils
 import {DeployMultiInit} from "../facets/DeployMultiInit.s.sol";
-import {MultiInit} from "src/initializers/MultiInit.sol";
+import {MultiInit} from "../../../src/initializers/MultiInit.sol";
 
 contract DeployDiamond is DiamondHelper, SimpleDeployer {
   DeployMultiInit private multiInitHelper = new DeployMultiInit();
