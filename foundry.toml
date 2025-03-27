@@ -3,12 +3,16 @@ auto_detect_solc = false # Foundry will automatically try to resolve appropriate
 solc_version = "0.8.29" # Uses a single Solidity compiler version for the project
 optimizer = true
 optimizer_runs = 4294967295
-src = "src"
-out = "out"
-test = "test"
-script = "scripts"
 libs = ["node_modules"]
+out = "out"
+script = "scripts"
+src = "src"
+test = "test"
 verbosity = 3 # The verbosity level to use during tests.
+fs_permissions = [
+  { access = "read", path = "./out" },
+  { access = "read-write", path = "./deployments" },
+]
 
 [profile.ci.fuzz]
 runs = 65536
