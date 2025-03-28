@@ -100,7 +100,7 @@ bun prettier:fix
 
 ## License
 
-MIT
+[MIT](https://github.com/towns-protocol/diamond/blob/main/LICENSE)
 
 ## Acknowledgements
 
