@@ -5,9 +5,9 @@ pragma solidity ^0.8.23;
 import {IProxyManager} from "./IProxyManager.sol";
 
 // libraries
-import {ProxyManagerBase} from "./ProxyManagerBase.sol";
-import {OwnableBase} from "../../facets/ownable/OwnableBase.sol";
 import {Facet} from "../../facets/Facet.sol";
+import {OwnableBase} from "../../facets/ownable/OwnableBase.sol";
+import {ProxyManagerBase} from "./ProxyManagerBase.sol";
 
 /**
  * @title ProxyManager
@@ -15,22 +15,16 @@ import {Facet} from "../../facets/Facet.sol";
  * @dev The flow of calls goes as follows ManagedProxy -> ProxyManager -> Implementation
  */
 contract ProxyManager is IProxyManager, ProxyManagerBase, OwnableBase, Facet {
-  function __ProxyManager_init(
-    address implementation
-  ) external onlyInitializing {
-    _setImplementation(implementation);
-    _addInterface(type(IProxyManager).interfaceId);
-  }
+    function __ProxyManager_init(address implementation) external onlyInitializing {
+        _setImplementation(implementation);
+        _addInterface(type(IProxyManager).interfaceId);
+    }
 
-  function getImplementation(
-    bytes4 selector
-  ) external view virtual returns (address) {
-    return _getImplementation(selector);
-  }
+    function getImplementation(bytes4 selector) external view virtual returns (address) {
+        return _getImplementation(selector);
+    }
 
-  function setImplementation(
-    address implementation
-  ) external virtual onlyOwner {
-    _setImplementation(implementation);
-  }
+    function setImplementation(address implementation) external virtual onlyOwner {
+        _setImplementation(implementation);
+    }
 }

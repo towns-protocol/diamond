@@ -8,7 +8,7 @@ pragma solidity ^0.8.23;
 // contracts
 
 interface IProxy {
-  error Proxy__ImplementationIsNotContract();
+    error Proxy__ImplementationIsNotContract();
 
-  fallback() external payable;
+    fallback() external payable;
 }

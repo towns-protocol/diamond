@@ -10,31 +10,31 @@ import {PausableStorage} from "./PausableStorage.sol";
 // contracts
 
 abstract contract PausableBase is IPausableBase {
-  modifier whenNotPaused() {
-    if (_paused()) {
-      revert Pausable__Paused();
+    modifier whenNotPaused() {
+        if (_paused()) {
+            revert Pausable__Paused();
+        }
+        _;
     }
-    _;
-  }
 
-  modifier whenPaused() {
-    if (!_paused()) {
-      revert Pausable__NotPaused();
+    modifier whenPaused() {
+        if (!_paused()) {
+            revert Pausable__NotPaused();
+        }
+        _;
     }
-    _;
-  }
 
-  function _paused() internal view returns (bool) {
-    return PausableStorage.layout().paused;
-  }
+    function _paused() internal view returns (bool) {
+        return PausableStorage.layout().paused;
+    }
 
-  function _pause() internal {
-    PausableStorage.layout().paused = true;
-    emit Paused(msg.sender);
-  }
+    function _pause() internal {
+        PausableStorage.layout().paused = true;
+        emit Paused(msg.sender);
+    }
 
-  function _unpause() internal {
-    PausableStorage.layout().paused = false;
-    emit Unpaused(msg.sender);
-  }
+    function _unpause() internal {
+        PausableStorage.layout().paused = false;
+        emit Unpaused(msg.sender);
+    }
 }

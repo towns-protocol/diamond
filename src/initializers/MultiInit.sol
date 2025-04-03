@@ -8,25 +8,16 @@ import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 
 // contracts
 
-error AddressAndCalldataLengthDoNotMatch(
-  uint256 _addressesLength,
-  uint256 _calldataLength
-);
+error AddressAndCalldataLengthDoNotMatch(uint256 _addressesLength, uint256 _calldataLength);
 
 contract MultiInit {
-  function multiInit(
-    address[] calldata _addresses,
-    bytes[] calldata _calldata
-  ) external {
-    if (_addresses.length != _calldata.length) {
-      revert AddressAndCalldataLengthDoNotMatch(
-        _addresses.length,
-        _calldata.length
-      );
+    function multiInit(address[] calldata _addresses, bytes[] calldata _calldata) external {
+        if (_addresses.length != _calldata.length) {
+            revert AddressAndCalldataLengthDoNotMatch(_addresses.length, _calldata.length);
+        }
+        for (uint256 i; i < _addresses.length; i++) {
+            if (_calldata.length == 0) continue;
+            Address.functionDelegateCall(_addresses[i], _calldata[i]);
+        }
     }
-    for (uint256 i; i < _addresses.length; i++) {
-      if (_calldata.length == 0) continue;
-      Address.functionDelegateCall(_addresses[i], _calldata[i]);
-    }
-  }
 }

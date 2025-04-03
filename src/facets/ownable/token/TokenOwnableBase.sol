@@ -11,31 +11,31 @@ import {TokenOwnableStorage} from "./TokenOwnableStorage.sol";
 // contracts
 
 abstract contract TokenOwnableBase is ITokenOwnableBase {
-  function __TokenOwnableBase_init(TokenOwnable memory tokenOwnable) internal {
-    TokenOwnableStorage.Layout storage ds = TokenOwnableStorage.layout();
-    ds.collection = tokenOwnable.collection;
-    ds.tokenId = tokenOwnable.tokenId;
-  }
-
-  modifier onlyOwner() {
-    if (msg.sender != _owner()) {
-      revert Ownable__NotOwner(msg.sender);
+    function __TokenOwnableBase_init(TokenOwnable memory tokenOwnable) internal {
+        TokenOwnableStorage.Layout storage ds = TokenOwnableStorage.layout();
+        ds.collection = tokenOwnable.collection;
+        ds.tokenId = tokenOwnable.tokenId;
     }
-    _;
-  }
 
-  function _owner() internal view returns (address owner) {
-    TokenOwnableStorage.Layout storage ds = TokenOwnableStorage.layout();
-    return IERC721(ds.collection).ownerOf(ds.tokenId);
-  }
+    modifier onlyOwner() {
+        if (msg.sender != _owner()) {
+            revert Ownable__NotOwner(msg.sender);
+        }
+        _;
+    }
 
-  function _transferOwnership(address newOwner) internal {
-    address oldOwner = _owner();
-    if (newOwner == address(0)) revert Ownable__ZeroAddress();
+    function _owner() internal view returns (address owner) {
+        TokenOwnableStorage.Layout storage ds = TokenOwnableStorage.layout();
+        return IERC721(ds.collection).ownerOf(ds.tokenId);
+    }
 
-    TokenOwnableStorage.Layout storage ds = TokenOwnableStorage.layout();
+    function _transferOwnership(address newOwner) internal {
+        address oldOwner = _owner();
+        if (newOwner == address(0)) revert Ownable__ZeroAddress();
 
-    IERC721(ds.collection).safeTransferFrom(_owner(), newOwner, ds.tokenId);
-    emit OwnershipTransferred(oldOwner, newOwner);
-  }
+        TokenOwnableStorage.Layout storage ds = TokenOwnableStorage.layout();
+
+        IERC721(ds.collection).safeTransferFrom(_owner(), newOwner, ds.tokenId);
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
 }
