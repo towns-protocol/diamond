@@ -2,33 +2,42 @@
 pragma solidity ^0.8.23;
 
 //interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 //contracts
 import {TokenPausableFacet} from "../../../src/facets/pausable/token/TokenPausableFacet.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
 
-contract DeployTokenPausable is FacetHelper, SimpleDeployer {
-    constructor() {
-        addSelector(TokenPausableFacet.pause.selector);
-        addSelector(TokenPausableFacet.unpause.selector);
-        addSelector(TokenPausableFacet.paused.selector);
+library DeployTokenPausable {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](3);
+        _selectors[0] = TokenPausableFacet.pause.selector;
+        _selectors[1] = TokenPausableFacet.unpause.selector;
+        _selectors[2] = TokenPausableFacet.paused.selector;
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "tokenPausableFacet";
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        TokenPausableFacet facet = new TokenPausableFacet();
-        vm.stopBroadcast();
-        return address(facet);
+    function makeInitData() internal pure returns (bytes memory) {
+        return abi.encodeCall(TokenPausableFacet.__Pausable_init, ());
     }
 
-    function initializer() public pure override returns (bytes4) {
-        return TokenPausableFacet.__Pausable_init.selector;
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("TokenPausableFacet.sol", "");
     }
 }

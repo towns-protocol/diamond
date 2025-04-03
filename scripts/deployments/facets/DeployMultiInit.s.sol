@@ -1,27 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.23;
 
+//libraries
+import {DeployLib} from "../../common/DeployLib.sol";
+
+//contracts
 import {MultiInit} from "../../../src/initializers/MultiInit.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
 
-contract DeployMultiInit is SimpleDeployer {
-    function versionName() public pure override returns (string memory) {
-        return "multiInit";
-    }
-
-    function __deploy(address deployer) public override returns (address) {
-        vm.broadcast(deployer);
-        return address(new MultiInit());
+library DeployMultiInit {
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("MultiInit.sol", "");
     }
 
     function makeInitData(
         address[] memory initAddresses,
         bytes[] memory initDatas
     )
-        public
+        internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeWithSelector(MultiInit.multiInit.selector, initAddresses, initDatas);
+        return abi.encodeCall(MultiInit.multiInit, (initAddresses, initDatas));
     }
 }

@@ -2,36 +2,41 @@
 pragma solidity ^0.8.23;
 
 //interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 //contracts
 import {OwnableFacet} from "../../../src/facets/ownable/OwnableFacet.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
 
-contract DeployOwnable is FacetHelper, SimpleDeployer {
-    constructor() {
-        addSelector(OwnableFacet.owner.selector);
-        addSelector(OwnableFacet.transferOwnership.selector);
+library DeployOwnable {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](2);
+        _selectors[0] = OwnableFacet.owner.selector;
+        _selectors[1] = OwnableFacet.transferOwnership.selector;
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "ownableFacet";
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        OwnableFacet facet = new OwnableFacet();
-        vm.stopBroadcast();
-        return address(facet);
+    function makeInitData(address owner) internal pure returns (bytes memory) {
+        return abi.encodeCall(OwnableFacet.__Ownable_init, (owner));
     }
 
-    function initializer() public pure override returns (bytes4) {
-        return OwnableFacet.__Ownable_init.selector;
-    }
-
-    function makeInitData(address owner) public pure returns (bytes memory) {
-        return abi.encodeWithSelector(OwnableFacet.__Ownable_init.selector, owner);
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("OwnableFacet.sol", "");
     }
 }

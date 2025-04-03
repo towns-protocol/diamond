@@ -20,7 +20,6 @@ import {MockToken} from "test/mocks/MockToken.sol";
 
 contract TokenOwnableTest is TestUtils, ITokenOwnableBase {
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployTokenOwnable tokenOwnableHelper = new DeployTokenOwnable();
 
     address diamond;
     address deployer;
@@ -34,15 +33,16 @@ contract TokenOwnableTest is TestUtils, ITokenOwnableBase {
         deployer = getDeployer();
         owner = makeAddr("owner");
 
-        address tokenOwnableFacet = tokenOwnableHelper.deploy(deployer);
+        vm.prank(deployer);
+        address tokenOwnableFacet = DeployTokenOwnable.deploy();
 
         mockToken = new MockToken();
         tokenId = mockToken.mintTo(owner);
 
         diamondHelper.addFacet(
-            tokenOwnableHelper.makeCut(tokenOwnableFacet, IDiamond.FacetCutAction.Add),
+            DeployTokenOwnable.makeCut(tokenOwnableFacet, IDiamond.FacetCutAction.Add),
             tokenOwnableFacet,
-            tokenOwnableHelper.makeInitData(TokenOwnable(address(mockToken), tokenId))
+            DeployTokenOwnable.makeInitData(TokenOwnable(address(mockToken), tokenId))
         );
 
         diamond = diamondHelper.deploy(deployer);

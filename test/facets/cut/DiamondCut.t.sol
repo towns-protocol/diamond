@@ -23,7 +23,6 @@ import {DeployMockFacet, MockFacet} from "test/mocks/MockFacet.sol";
 contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     DeployMockFacet mockFacetHelper = new DeployMockFacet();
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployDiamondCut diamondCutHelper = new DeployDiamondCut();
 
     address diamond;
     address deployer;
@@ -303,7 +302,8 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_revertWhenReplacingDiamondCut() external {
-        address cutFacet = diamondCutHelper.deploy(deployer);
+        vm.prank(deployer);
+        address cutFacet = DeployDiamondCut.deploy();
         bytes4[] memory selectors = new bytes4[](1);
         selectors[0] = IDiamondCut.diamondCut.selector;
 

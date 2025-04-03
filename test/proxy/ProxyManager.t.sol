@@ -17,6 +17,7 @@ import {IMockFacet} from "test/mocks/MockFacet.sol";
 // libraries
 
 // contracts
+import {DeployFacet} from "../../scripts/common/DeployFacet.s.sol";
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
 import {DeployManagedProxy} from "scripts/deployments/facets/DeployManagedProxy.s.sol";
 import {DeployOwnable} from "scripts/deployments/facets/DeployOwnable.s.sol";
@@ -40,10 +41,8 @@ import {MockProxyInstance} from "test/mocks/MockProxyInstance.sol";
 /// - Control access to implementation updates
 /// - Maintain proper proxy-implementation relationships
 contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
-    DeployProxyManager proxyManagerHelper = new DeployProxyManager();
     DeployMockFacet mockFacetHelper = new DeployMockFacet();
-    DeployManagedProxy managedProxyHelper = new DeployManagedProxy();
-    DeployOwnable ownableFacetHelper = new DeployOwnable();
+    DeployFacet private facetHelper = new DeployFacet();
 
     address manager;
     address implementation;
@@ -57,25 +56,25 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
         // create a diamond with a managed proxy facet - this is the implementation
         DeployDiamond implementationDiamond = new DeployDiamond();
-        address managedProxy = managedProxyHelper.deploy(deployer);
-        address ownableFacet = ownableFacetHelper.deploy(deployer);
+        address managedProxy = facetHelper.deploy("ManagedProxyFacet", deployer);
+        address ownableFacet = facetHelper.deploy("OwnableFacet", deployer);
         implementationDiamond.addCut(
-            ownableFacetHelper.makeCut(ownableFacet, IDiamond.FacetCutAction.Add)
+            DeployOwnable.makeCut(ownableFacet, IDiamond.FacetCutAction.Add)
         );
         implementationDiamond.addFacet(
-            managedProxyHelper.makeCut(managedProxy, IDiamond.FacetCutAction.Add),
+            DeployManagedProxy.makeCut(managedProxy, IDiamond.FacetCutAction.Add),
             managedProxy,
-            managedProxyHelper.makeInitData("")
+            DeployManagedProxy.makeInitData()
         );
         implementation = implementationDiamond.deploy(deployer);
 
         // create a diamond with a proxy manager facet, pointing to the implementation
         DeployDiamond managerDiamond = new DeployDiamond();
-        address proxyManagerFacet = proxyManagerHelper.deploy(deployer);
+        address proxyManagerFacet = facetHelper.deploy("ProxyManager", deployer);
         managerDiamond.addFacet(
-            proxyManagerHelper.makeCut(proxyManagerFacet, IDiamond.FacetCutAction.Add),
+            DeployProxyManager.makeCut(proxyManagerFacet, IDiamond.FacetCutAction.Add),
             proxyManagerFacet,
-            proxyManagerHelper.makeInitData(implementation)
+            DeployProxyManager.makeInitData(implementation)
         );
         manager = managerDiamond.deploy(deployer);
 
@@ -95,15 +94,15 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
     function test_setImplementation() external {
         DeployDiamond implementationDiamond = new DeployDiamond();
-        address managedProxy = managedProxyHelper.deploy(deployer);
-        address ownableFacet = ownableFacetHelper.deploy(deployer);
+        address managedProxy = facetHelper.deploy("ManagedProxyFacet", deployer);
+        address ownableFacet = facetHelper.deploy("OwnableFacet", deployer);
         implementationDiamond.addCut(
-            ownableFacetHelper.makeCut(ownableFacet, IDiamond.FacetCutAction.Add)
+            DeployOwnable.makeCut(ownableFacet, IDiamond.FacetCutAction.Add)
         );
         implementationDiamond.addFacet(
-            managedProxyHelper.makeCut(managedProxy, IDiamond.FacetCutAction.Add),
+            DeployManagedProxy.makeCut(managedProxy, IDiamond.FacetCutAction.Add),
             managedProxy,
-            managedProxyHelper.makeInitData("")
+            DeployManagedProxy.makeInitData()
         );
         address newImplementation = implementationDiamond.deploy(deployer);
 

@@ -2,37 +2,46 @@
 pragma solidity ^0.8.23;
 
 //interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 import {ITokenOwnableBase} from "../../../src/facets/ownable/token/ITokenOwnable.sol";
 
 //libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 //contracts
 import {TokenOwnableFacet} from "../../../src/facets/ownable/token/TokenOwnableFacet.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
 
-contract DeployTokenOwnable is FacetHelper, SimpleDeployer, ITokenOwnableBase {
-    constructor() {
-        addSelector(TokenOwnableFacet.owner.selector);
-        addSelector(TokenOwnableFacet.transferOwnership.selector);
+library DeployTokenOwnable {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](2);
+        _selectors[0] = TokenOwnableFacet.owner.selector;
+        _selectors[1] = TokenOwnableFacet.transferOwnership.selector;
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "tokenOwnableFacet";
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        TokenOwnableFacet facet = new TokenOwnableFacet();
-        vm.stopBroadcast();
-        return address(facet);
+    function makeInitData(ITokenOwnableBase.TokenOwnable memory tokenOwnable)
+        internal
+        pure
+        returns (bytes memory)
+    {
+        return abi.encodeCall(TokenOwnableFacet.__TokenOwnable_init, (tokenOwnable));
     }
 
-    function initializer() public pure override returns (bytes4) {
-        return TokenOwnableFacet.__TokenOwnable_init.selector;
-    }
-
-    function makeInitData(TokenOwnable memory tokenOwnable) public pure returns (bytes memory) {
-        return abi.encodeWithSelector(TokenOwnableFacet.__TokenOwnable_init.selector, tokenOwnable);
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("TokenOwnableFacet.sol", "");
     }
 }
