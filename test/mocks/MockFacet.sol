@@ -2,13 +2,14 @@
 pragma solidity ^0.8.23;
 
 // interfaces
+import {IDiamond} from "../../src/IDiamond.sol";
 
 // libraries
+import {DeployLib} from "../../scripts/common/DeployLib.sol";
 
-import {SimpleDeployer} from "scripts/common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "scripts/common/helpers/FacetHelper.s.sol";
-import {Facet} from "src/facets/Facet.sol";
-import {TokenOwnableBase} from "src/facets/ownable/token/TokenOwnableBase.sol";
+// contracts
+import {Facet} from "../../src/facets/Facet.sol";
+import {TokenOwnableBase} from "../../src/facets/ownable/token/TokenOwnableBase.sol";
 
 interface IMockFacet {
     function mockFunction() external pure returns (uint256);
@@ -65,31 +66,36 @@ contract MockFacet is IMockFacet, TokenOwnableBase, Facet {
     }
 }
 
-contract DeployMockFacet is SimpleDeployer, FacetHelper {
-    constructor() {
-        addSelector(MockFacet.mockFunction.selector);
-        addSelector(MockFacet.anotherMockFunction.selector);
-        addSelector(MockFacet.upgrade.selector);
-        addSelector(MockFacet.setValue.selector);
-        addSelector(MockFacet.getValue.selector);
+library DeployMockFacet {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](5);
+        _selectors[0] = MockFacet.mockFunction.selector;
+        _selectors[1] = MockFacet.anotherMockFunction.selector;
+        _selectors[2] = MockFacet.upgrade.selector;
+        _selectors[3] = MockFacet.setValue.selector;
+        _selectors[4] = MockFacet.getValue.selector;
     }
 
-    function initializer() public pure override returns (bytes4) {
-        return MockFacet.__MockFacet_init.selector;
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
-    function makeInitData(uint256 value) public pure returns (bytes memory) {
-        return abi.encodeWithSelector(MockFacet.__MockFacet_init.selector, value);
+    function makeInitData(uint256 value) internal pure returns (bytes memory) {
+        return abi.encodeCall(MockFacet.__MockFacet_init, (value));
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "mockFacet";
-    }
-
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        MockFacet facet = new MockFacet();
-        vm.stopBroadcast();
-        return address(facet);
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("out/MockFacet.sol/MockFacet.json", "");
     }
 }

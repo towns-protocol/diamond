@@ -60,13 +60,11 @@ contract DeployDiamond is DiamondHelper, SimpleDeployer {
         });
     }
 
-    function __deploy(address deployer) public override returns (address) {
+    function __deploy(address deployer) internal override returns (address) {
         Diamond.InitParams memory initDiamondCut = diamondInitParams(deployer);
 
-        vm.startBroadcast(deployer);
+        vm.broadcast(deployer);
         Diamond diamond = new Diamond(initDiamondCut);
-        vm.stopBroadcast();
-
         return address(diamond);
     }
 }

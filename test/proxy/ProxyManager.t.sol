@@ -41,7 +41,6 @@ import {MockProxyInstance} from "test/mocks/MockProxyInstance.sol";
 /// - Control access to implementation updates
 /// - Maintain proper proxy-implementation relationships
 contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
-    DeployMockFacet mockFacetHelper = new DeployMockFacet();
     DeployFacet private facetHelper = new DeployFacet();
 
     address manager;
@@ -142,10 +141,10 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
     /// @notice This test adds a new facet to our main implementation, which means our instance should now have access to it as well
     function test_instanceHasImplementationGlobalFacet() external {
-        address mockFacet = mockFacetHelper.deploy();
+        address mockFacet = DeployMockFacet.deploy();
 
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
-        extensions[0] = mockFacetHelper.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
+        extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
 
         vm.prank(deployer);
         IDiamondCut(address(implementation)).diamondCut(extensions, address(0), "");
@@ -155,10 +154,10 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
     /// @notice This test reverts when the implementation owner calls diamondCut on the implementation
     function test_revertWhen_diamondCutByWrongOwner() external {
-        address mockFacet = mockFacetHelper.deploy();
+        address mockFacet = DeployMockFacet.deploy();
 
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
-        extensions[0] = mockFacetHelper.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
+        extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
 
         vm.prank(instanceOwner);
         vm.expectRevert();
@@ -173,9 +172,8 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
     function test_instanceContainsLocalFacet() external {
         // add some facets to diamond
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
-        extensions[0] = mockFacetHelper.makeCut(
-            mockFacetHelper.deploy(instanceOwner), IDiamond.FacetCutAction.Add
-        );
+        extensions[0] =
+            DeployMockFacet.makeCut(DeployMockFacet.deploy(), IDiamond.FacetCutAction.Add);
 
         vm.prank(instanceOwner);
         IDiamondCut(address(instance)).diamondCut(extensions, address(0), "");
@@ -202,11 +200,11 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_upgradePath() external {
-        address mockFacet = mockFacetHelper.deploy();
+        address mockFacet = DeployMockFacet.deploy();
 
         // add mock facet to implementation
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
-        extensions[0] = mockFacetHelper.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
+        extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
 
         vm.prank(deployer);
         IDiamondCut(address(implementation)).diamondCut(

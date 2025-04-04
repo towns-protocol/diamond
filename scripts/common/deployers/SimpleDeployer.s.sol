@@ -17,7 +17,7 @@ abstract contract SimpleDeployer is DeployBase {
     // - loading private keys
     // - saving deployments
     // - logging
-    function __deploy(address deployer) public virtual returns (address);
+    function __deploy(address deployer) internal virtual returns (address);
 
     // will first try to load existing deployments from `deployments/<network>/<contract>.json`
     // if OVERRIDE_DEPLOYMENTS is set to true or if no cached deployment is found:
