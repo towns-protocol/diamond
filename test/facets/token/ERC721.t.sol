@@ -13,15 +13,11 @@ import {DeployMockERC721} from "scripts/deployments/mocks/DeployMockERC721.sol";
 import {MockERC721} from "test/mocks/MockERC721.sol";
 
 contract ERC721Test is TestUtils {
-    DeployMockERC721 deployMockERC721Helper = new DeployMockERC721();
-
     MockERC721 mockERC721;
 
-    address deployer;
-
     function setUp() external {
-        deployer = getDeployer();
-        mockERC721 = MockERC721(deployMockERC721Helper.deploy(deployer));
+        vm.prank(getDeployer());
+        mockERC721 = MockERC721(DeployMockERC721.deploy());
     }
 
     modifier givenTokensAreMinted(address to, uint256 tokenId) {

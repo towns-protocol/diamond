@@ -14,15 +14,13 @@ import {DeployMockERC6909} from "scripts/deployments/mocks/DeployMockERC6909.s.s
 import {MockERC6909} from "test/mocks/MockERC6909.sol";
 
 contract ERC6909Test is TestUtils, IERC6909Base {
-    DeployMockERC6909 deployMockERC6909Helper = new DeployMockERC6909();
     MockERC6909 facet;
 
-    address deployer;
     address constant ZERO_ADDRESS = address(0);
 
     function setUp() external {
-        deployer = getDeployer();
-        facet = MockERC6909(deployMockERC6909Helper.deploy(deployer));
+        vm.prank(getDeployer());
+        facet = MockERC6909(DeployMockERC6909.deploy());
     }
 
     modifier givenTokensAreMinted(address to, uint256 tokenId, uint256 amount) {

@@ -2,33 +2,42 @@
 pragma solidity ^0.8.23;
 
 //interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 //contracts
 import {PausableFacet} from "../../../src/facets/pausable/PausableFacet.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
 
-contract DeployPausable is FacetHelper, SimpleDeployer {
-    constructor() {
-        addSelector(PausableFacet.pause.selector);
-        addSelector(PausableFacet.unpause.selector);
-        addSelector(PausableFacet.paused.selector);
+library DeployPausable {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](3);
+        _selectors[0] = PausableFacet.pause.selector;
+        _selectors[1] = PausableFacet.unpause.selector;
+        _selectors[2] = PausableFacet.paused.selector;
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "pausableFacet";
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        PausableFacet facet = new PausableFacet();
-        vm.stopBroadcast();
-        return address(facet);
+    function makeInitData() internal pure returns (bytes memory) {
+        return abi.encodeCall(PausableFacet.__Pausable_init, ());
     }
 
-    function initializer() public pure override returns (bytes4) {
-        return PausableFacet.__Pausable_init.selector;
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("PausableFacet.sol", "");
     }
 }

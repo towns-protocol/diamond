@@ -17,7 +17,6 @@ import {OwnableFacet} from "src/facets/ownable/OwnableFacet.sol";
 
 contract OwnableTest is TestUtils, IOwnableBase {
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployOwnable ownableHelper = new DeployOwnable();
 
     address diamond;
     address deployer;
@@ -28,8 +27,9 @@ contract OwnableTest is TestUtils, IOwnableBase {
     function setUp() public {
         deployer = getDeployer();
 
-        address ownableFacet = ownableHelper.deploy(deployer);
-        diamondHelper.addCut(ownableHelper.makeCut(ownableFacet, IDiamond.FacetCutAction.Add));
+        vm.prank(deployer);
+        address ownableFacet = DeployOwnable.deploy();
+        diamondHelper.addCut(DeployOwnable.makeCut(ownableFacet, IDiamond.FacetCutAction.Add));
 
         diamond = diamondHelper.deploy(deployer);
         ownable = IERC173(diamond);

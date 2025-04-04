@@ -17,7 +17,6 @@ import {PausableFacet} from "src/facets/pausable/PausableFacet.sol";
 
 contract PausableTest is TestUtils, IPausableBase {
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployPausable pausableHelper = new DeployPausable();
 
     address diamond;
     address deployer;
@@ -26,12 +25,13 @@ contract PausableTest is TestUtils, IPausableBase {
 
     function setUp() public {
         deployer = getDeployer();
-        address pausableFacet = pausableHelper.deploy(deployer);
+        vm.prank(deployer);
+        address pausableFacet = DeployPausable.deploy();
 
         diamondHelper.addFacet(
-            pausableHelper.makeCut(pausableFacet, IDiamond.FacetCutAction.Add),
+            DeployPausable.makeCut(pausableFacet, IDiamond.FacetCutAction.Add),
             pausableFacet,
-            pausableHelper.makeInitData("")
+            DeployPausable.makeInitData()
         );
 
         diamond = diamondHelper.deploy(deployer);

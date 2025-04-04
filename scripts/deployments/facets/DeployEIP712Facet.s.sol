@@ -2,44 +2,49 @@
 pragma solidity ^0.8.23;
 
 //interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 //contracts
 import {EIP712Facet} from "../../../src/utils/cryptography/EIP712Facet.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
 
-contract DeployEIP712Facet is FacetHelper, SimpleDeployer {
-    constructor() {
-        addSelector(EIP712Facet.DOMAIN_SEPARATOR.selector);
-        addSelector(EIP712Facet.nonces.selector);
-        addSelector(EIP712Facet.eip712Domain.selector);
+library DeployEIP712Facet {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](3);
+        _selectors[0] = EIP712Facet.DOMAIN_SEPARATOR.selector;
+        _selectors[1] = EIP712Facet.nonces.selector;
+        _selectors[2] = EIP712Facet.eip712Domain.selector;
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "eip712Facet";
-    }
-
-    function initializer() public pure override returns (bytes4) {
-        return EIP712Facet.__EIP712_init.selector;
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
     function makeInitData(
         string memory name,
         string memory version
     )
-        public
+        internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeWithSelector(initializer(), name, version);
+        return abi.encodeCall(EIP712Facet.__EIP712_init, (name, version));
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        EIP712Facet facet = new EIP712Facet();
-        vm.stopBroadcast();
-        return address(facet);
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("EIP712Facet.sol", "");
     }
 }

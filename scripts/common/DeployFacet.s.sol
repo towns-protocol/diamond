@@ -23,8 +23,20 @@ contract DeployFacet is DeployBase {
     ///      - Constructs the artifact path and version name
     ///      - Uses DeployBase's deploy function with a curried deployment wrapper
     /// @return The address of the deployed facet contract
-    function run() external broadcastWith(msg.sender) returns (address) {
+    function run() external returns (address) {
         string memory name = vm.envString("CONTRACT_NAME");
+        return deploy(name, msg.sender);
+    }
+
+    /// @notice Deploys a facet contract using the provided name and deployer address
+    function deploy(
+        string memory name,
+        address deployer
+    )
+        public
+        broadcastWith(deployer)
+        returns (address)
+    {
         artifactPath = string.concat(outDir(), name, ".sol/", name, ".json");
         string memory versionName = string.concat("facets/", name);
 

@@ -2,31 +2,40 @@
 pragma solidity ^0.8.23;
 
 //interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 //contracts
 import {DiamondCutFacet} from "../../../src/facets/cut/DiamondCutFacet.sol";
-import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "../../common/helpers/FacetHelper.s.sol";
 
-contract DeployDiamondCut is FacetHelper, SimpleDeployer {
-    constructor() {
-        addSelector(DiamondCutFacet.diamondCut.selector);
+library DeployDiamondCut {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](1);
+        _selectors[0] = DiamondCutFacet.diamondCut.selector;
     }
 
-    function initializer() public pure override returns (bytes4) {
-        return DiamondCutFacet.__DiamondCut_init.selector;
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "diamondCutFacet";
+    function makeInitData() internal pure returns (bytes memory) {
+        return abi.encodeCall(DiamondCutFacet.__DiamondCut_init, ());
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        DiamondCutFacet diamondCut = new DiamondCutFacet();
-        vm.stopBroadcast();
-        return address(diamondCut);
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("DiamondCutFacet.sol", "");
     }
 }

@@ -22,8 +22,6 @@ import {MockToken} from "test/mocks/MockToken.sol";
 
 contract TokenPausableTest is TestUtils, ITokenOwnableBase, IPausableBase {
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployTokenOwnable tokenOwnableHelper = new DeployTokenOwnable();
-    DeployTokenPausable tokenPausableHelper = new DeployTokenPausable();
 
     address diamond;
     address deployer;
@@ -41,19 +39,21 @@ contract TokenPausableTest is TestUtils, ITokenOwnableBase, IPausableBase {
         mockToken = new MockToken();
         tokenId = mockToken.mintTo(owner);
 
-        address tokenOwnableFacet = tokenOwnableHelper.deploy(deployer);
-        address tokenPausableFacet = tokenPausableHelper.deploy(deployer);
+        vm.startPrank(deployer);
+        address tokenOwnableFacet = DeployTokenOwnable.deploy();
+        address tokenPausableFacet = DeployTokenPausable.deploy();
+        vm.stopPrank();
 
         diamondHelper.addFacet(
-            tokenOwnableHelper.makeCut(tokenOwnableFacet, IDiamond.FacetCutAction.Add),
+            DeployTokenOwnable.makeCut(tokenOwnableFacet, IDiamond.FacetCutAction.Add),
             tokenOwnableFacet,
-            tokenOwnableHelper.makeInitData(TokenOwnable(address(mockToken), tokenId))
+            DeployTokenOwnable.makeInitData(TokenOwnable(address(mockToken), tokenId))
         );
 
         diamondHelper.addFacet(
-            tokenPausableHelper.makeCut(tokenPausableFacet, IDiamond.FacetCutAction.Add),
+            DeployTokenPausable.makeCut(tokenPausableFacet, IDiamond.FacetCutAction.Add),
             tokenPausableFacet,
-            tokenPausableHelper.makeInitData("")
+            DeployTokenPausable.makeInitData()
         );
 
         diamond = diamondHelper.deploy(deployer);

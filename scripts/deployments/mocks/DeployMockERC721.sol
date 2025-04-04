@@ -2,53 +2,58 @@
 pragma solidity ^0.8.23;
 
 // interfaces
+import {IDiamond} from "../../../src/IDiamond.sol";
 
 // libraries
+import {DeployLib} from "../../common/DeployLib.sol";
 
 // contracts
-import {SimpleDeployer} from "scripts/common/deployers/SimpleDeployer.s.sol";
-import {FacetHelper} from "scripts/common/helpers/FacetHelper.s.sol";
-import {ERC721} from "src/facets/token/ERC721/ERC721.sol";
-import {MockERC721} from "test/mocks/MockERC721.sol";
+import {ERC721} from "../../../src/facets/token/ERC721/ERC721.sol";
+import {MockERC721} from "../../../test/mocks/MockERC721.sol";
 
-contract DeployMockERC721 is SimpleDeployer, FacetHelper {
-    constructor() {
+library DeployMockERC721 {
+    function selectors() internal pure returns (bytes4[] memory _selectors) {
+        _selectors = new bytes4[](10);
         // ERC721
-        addSelector(ERC721.totalSupply.selector);
-        addSelector(ERC721.balanceOf.selector);
-        addSelector(ERC721.ownerOf.selector);
-        addSelector(ERC721.approve.selector);
-        addSelector(ERC721.getApproved.selector);
-        addSelector(ERC721.setApprovalForAll.selector);
-        addSelector(ERC721.isApprovedForAll.selector);
-        addSelector(bytes4(keccak256("safeTransferFrom(address,address,uint256)")));
-        addSelector(bytes4(keccak256("safeTransferFrom(address,address,uint256,bytes)")));
-        addSelector(ERC721.transferFrom.selector);
+        _selectors[0] = ERC721.totalSupply.selector;
+        _selectors[1] = ERC721.balanceOf.selector;
+        _selectors[2] = ERC721.ownerOf.selector;
+        _selectors[3] = ERC721.approve.selector;
+        _selectors[4] = ERC721.getApproved.selector;
+        _selectors[5] = ERC721.setApprovalForAll.selector;
+        _selectors[6] = ERC721.isApprovedForAll.selector;
+        _selectors[7] = bytes4(keccak256("safeTransferFrom(address,address,uint256)"));
+        _selectors[8] = bytes4(keccak256("safeTransferFrom(address,address,uint256,bytes)"));
+        _selectors[9] = ERC721.transferFrom.selector;
     }
 
-    function versionName() public pure override returns (string memory) {
-        return "mockERC721";
-    }
-
-    function initializer() public pure override returns (bytes4) {
-        return ERC721.__ERC721_init.selector;
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
     function makeInitData(
         string memory name,
         string memory symbol
     )
-        public
+        internal
         pure
         returns (bytes memory)
     {
-        return abi.encodeWithSelector(initializer(), name, symbol);
+        return abi.encodeCall(ERC721.__ERC721_init, (name, symbol));
     }
 
-    function __deploy(address deployer) public override returns (address) {
-        vm.startBroadcast(deployer);
-        MockERC721 facet = new MockERC721();
-        vm.stopBroadcast();
-        return address(facet);
+    function deploy() internal returns (address) {
+        return DeployLib.deployCode("MockERC721.sol", "");
     }
 }

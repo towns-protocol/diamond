@@ -18,7 +18,6 @@ import {DeployMockFacet, MockFacet} from "test/mocks/MockFacet.sol";
 
 contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployMockFacet mockFacetHelper = new DeployMockFacet();
 
     address diamond;
     address deployer;
@@ -37,8 +36,8 @@ contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     }
 
     function test_facets() external {
-        address mockFacet = mockFacetHelper.deploy();
-        bytes4[] memory expectedSelectors = mockFacetHelper.selectors();
+        address mockFacet = DeployMockFacet.deploy();
+        bytes4[] memory expectedSelectors = DeployMockFacet.selectors();
         IDiamondLoupe.Facet[] memory currentFacets = diamondLoupe.facets();
 
         // create facet cuts
@@ -61,8 +60,8 @@ contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     }
 
     function test_facetFunctionSelectors() external {
-        address mockFacet = mockFacetHelper.deploy();
-        bytes4[] memory expectedSelectors = mockFacetHelper.selectors();
+        address mockFacet = DeployMockFacet.deploy();
+        bytes4[] memory expectedSelectors = DeployMockFacet.selectors();
 
         // create facet cuts
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
@@ -90,8 +89,8 @@ contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     }
 
     function test_facetAddresses() external {
-        address mockFacet = mockFacetHelper.deploy();
-        bytes4[] memory expectedSelectors = mockFacetHelper.selectors();
+        address mockFacet = DeployMockFacet.deploy();
+        bytes4[] memory expectedSelectors = DeployMockFacet.selectors();
         address[] memory currentFacetAddresses = diamondLoupe.facetAddresses();
 
         // create facet cuts
@@ -117,8 +116,8 @@ contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     }
 
     function test_facetAddress() external {
-        address mockFacet = mockFacetHelper.deploy();
-        bytes4[] memory expectedSelectors = mockFacetHelper.selectors();
+        address mockFacet = DeployMockFacet.deploy();
+        bytes4[] memory expectedSelectors = DeployMockFacet.selectors();
 
         // create facet cuts
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
@@ -140,8 +139,8 @@ contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     }
 
     function test_facetAddressRemove() external {
-        address mockFacet = mockFacetHelper.deploy();
-        bytes4[] memory expectedSelectors = mockFacetHelper.selectors();
+        address mockFacet = DeployMockFacet.deploy();
+        bytes4[] memory expectedSelectors = DeployMockFacet.selectors();
 
         // create facet cuts
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
@@ -174,8 +173,8 @@ contract DiamondLoupeTest is TestUtils, IDiamondLoupeBase {
     }
 
     function test_facetAddressReplace() external {
-        address mockFacet = mockFacetHelper.deploy();
-        bytes4[] memory expectedSelectors = mockFacetHelper.selectors();
+        address mockFacet = DeployMockFacet.deploy();
+        bytes4[] memory expectedSelectors = DeployMockFacet.selectors();
 
         // create facet cuts
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);

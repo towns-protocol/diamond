@@ -17,7 +17,6 @@ import {OwnablePendingFacet} from "src/facets/ownable/pending/OwnablePendingFace
 
 contract OwnablePendingTest is TestUtils, IOwnableBase {
     DeployDiamond diamondHelper = new DeployDiamond();
-    DeployOwnablePending ownablePendingHelper = new DeployOwnablePending();
 
     address diamond;
     address deployer;
@@ -28,10 +27,11 @@ contract OwnablePendingTest is TestUtils, IOwnableBase {
     function setUp() public {
         deployer = getDeployer();
 
-        address ownablePending = ownablePendingHelper.deploy(deployer);
+        vm.prank(deployer);
+        address ownablePending = DeployOwnablePending.deploy();
 
         diamondHelper.addCut(
-            ownablePendingHelper.makeCut(ownablePending, IDiamond.FacetCutAction.Add)
+            DeployOwnablePending.makeCut(ownablePending, IDiamond.FacetCutAction.Add)
         );
 
         diamond = diamondHelper.deploy(deployer);
