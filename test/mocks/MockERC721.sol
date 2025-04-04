@@ -9,11 +9,11 @@ pragma solidity ^0.8.23;
 import {ERC721} from "src/facets/token/ERC721/ERC721.sol";
 
 contract MockERC721 is ERC721 {
-  constructor() {
-    __ERC721_init_unchained("MockERC721", "MKR");
-  }
+    constructor() {
+        __ERC721_init_unchained("MockERC721", "MKR");
+    }
 
-  function mint(address to, uint256 tokenId) external {
-    _mint(to, tokenId);
-  }
+    function mint(address to, uint256 tokenId) external {
+        _mint(to, tokenId);
+    }
 }

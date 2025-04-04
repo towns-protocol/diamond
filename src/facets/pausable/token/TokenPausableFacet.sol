@@ -8,28 +8,23 @@ import {IPausable} from "../IPausable.sol";
 
 // contracts
 import {Facet} from "../../Facet.sol";
-import {PausableBase} from "../PausableBase.sol";
 import {TokenOwnableBase} from "../../ownable/token/TokenOwnableBase.sol";
+import {PausableBase} from "../PausableBase.sol";
 
-contract TokenPausableFacet is
-  IPausable,
-  PausableBase,
-  TokenOwnableBase,
-  Facet
-{
-  function __Pausable_init() external onlyInitializing {
-    _unpause();
-  }
+contract TokenPausableFacet is IPausable, PausableBase, TokenOwnableBase, Facet {
+    function __Pausable_init() external onlyInitializing {
+        _unpause();
+    }
 
-  function paused() external view returns (bool) {
-    return _paused();
-  }
+    function paused() external view returns (bool) {
+        return _paused();
+    }
 
-  function pause() external onlyOwner whenNotPaused {
-    _pause();
-  }
+    function pause() external onlyOwner whenNotPaused {
+        _pause();
+    }
 
-  function unpause() external onlyOwner whenPaused {
-    _unpause();
-  }
+    function unpause() external onlyOwner whenPaused {
+        _unpause();
+    }
 }

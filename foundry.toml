@@ -14,6 +14,13 @@ fs_permissions = [
   { access = "read-write", path = "./deployments" },
 ]
 
+[fmt]
+line_length = 100
+multiline_func_header = "all"
+number_underscore = "thousands"
+quote_style = "double"
+sort_imports = true
+
 [profile.ci.fuzz]
 runs = 65536
 

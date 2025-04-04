@@ -13,19 +13,19 @@ import {IIntrospectionBase} from "src/facets/introspection/IIntrospectionBase.so
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
 
 contract IntrospectionTest is TestUtils, IIntrospectionBase {
-  DeployDiamond diamondHelper = new DeployDiamond();
+    DeployDiamond diamondHelper = new DeployDiamond();
 
-  address diamond;
-  address deployer;
-  IERC165 introspection;
+    address diamond;
+    address deployer;
+    IERC165 introspection;
 
-  function setUp() public {
-    deployer = getDeployer();
-    diamond = diamondHelper.deploy(deployer);
-    introspection = IERC165(diamond);
-  }
+    function setUp() public {
+        deployer = getDeployer();
+        diamond = diamondHelper.deploy(deployer);
+        introspection = IERC165(diamond);
+    }
 
-  function test_supportsInterface() external view {
-    assertTrue(introspection.supportsInterface(type(IERC165).interfaceId));
-  }
+    function test_supportsInterface() external view {
+        assertTrue(introspection.supportsInterface(type(IERC165).interfaceId));
+    }
 }

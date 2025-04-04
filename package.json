@@ -31,8 +31,8 @@
     "README.md"
   ],
   "scripts": {
-    "prettier": "prettier -c '{scripts,src,test}/**/*.sol' --config package.json",
-    "prettier:fix": "prettier -w '{scripts,src,test}/**/*.sol'",
+    "fmt": "forge fmt --check",
+    "fmt:fix": "forge fmt",
     "build": "forge build",
     "test": "forge test",
     "prepare": "husky"
@@ -44,20 +44,6 @@
     "solady": "^0.1.12"
   },
   "devDependencies": {
-    "husky": "^9.0.6",
-    "prettier": "^3.5.3",
-    "prettier-plugin-solidity": "^1.4.1"
-  },
-  "prettier": {
-    "arrowParens": "always",
-    "endOfLine": "lf",
-    "printWidth": 80,
-    "semi": true,
-    "singleQuote": false,
-    "tabWidth": 2,
-    "trailingComma": "all",
-    "plugins": [
-      "prettier-plugin-solidity"
-    ]
+    "husky": "^9.0.6"
   }
 }

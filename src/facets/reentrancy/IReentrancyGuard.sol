@@ -8,5 +8,5 @@ pragma solidity ^0.8.23;
 // contracts
 
 interface IReentrancyGuard {
-  error ReentrancyGuard__ReentrantCall();
+    error ReentrancyGuard__ReentrantCall();
 }
