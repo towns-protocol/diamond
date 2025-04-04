@@ -15,17 +15,10 @@ library DiamondLoupeBase {
     using EnumerableSet for EnumerableSet.Bytes32Set;
 
     function facetSelectors(address facet) internal view returns (bytes4[] memory selectors) {
-        EnumerableSet.Bytes32Set storage facetSelectors_ =
-            DiamondCutStorage.layout().selectorsByFacet[facet];
-        uint256 selectorCount = facetSelectors_.length();
+        bytes32[] memory selectors_ = DiamondCutStorage.layout().selectorsByFacet[facet].values();
 
-        selectors = new bytes4[](selectorCount);
-        for (uint256 i; i < selectorCount;) {
-            selectors[i] = bytes4(facetSelectors_.at(i));
-
-            unchecked {
-                i++;
-            }
+        assembly ("memory-safe") {
+            selectors := selectors_
         }
     }
 
@@ -42,14 +35,12 @@ library DiamondLoupeBase {
         uint256 facetCount = _facetAddresses.length;
         _facets = new IDiamondLoupeBase.Facet[](facetCount);
 
-        for (uint256 i; i < facetCount;) {
+        for (uint256 i; i < facetCount; ++i) {
             address _facetAddress = _facetAddresses[i];
-            bytes4[] memory selectors = facetSelectors(_facetAddress);
-            _facets[i] = IDiamondLoupeBase.Facet({facet: _facetAddress, selectors: selectors});
-
-            unchecked {
-                i++;
-            }
+            _facets[i] = IDiamondLoupeBase.Facet({
+                facet: _facetAddress,
+                selectors: facetSelectors(_facetAddress)
+            });
         }
     }
 }
