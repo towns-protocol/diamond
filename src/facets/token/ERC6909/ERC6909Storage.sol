@@ -9,8 +9,12 @@ library ERC6909Storage {
         0xf9f33862612718f5941a42fb684d74a72854935271a5691c69162b83a46f6d00;
 
     function getLayout() internal pure returns (MinimalERC6909Storage storage l) {
+        return getLayout(STORAGE_SLOT);
+    }
+
+    function getLayout(bytes32 slot) internal pure returns (MinimalERC6909Storage storage l) {
         assembly {
-            l.slot := STORAGE_SLOT
+            l.slot := slot
         }
     }
 }
