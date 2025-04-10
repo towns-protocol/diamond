@@ -15,28 +15,29 @@ import {EIP712Base} from "../../../../utils/cryptography/EIP712Base.sol";
 import {ERC20} from "../ERC20.sol";
 
 abstract contract ERC20PermitBase is IERC20PermitBase, IERC20Permit, ERC20, EIP712Base, Nonces {
+    /// @dev `keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")`.
+    bytes32 private constant _PERMIT_TYPEHASH =
+        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+
     function __ERC20PermitBase_init(
         string memory name_,
         string memory symbol_,
         uint8 decimals_
     )
         external
+        virtual
         onlyInitializing
     {
         __ERC20_init_unchained(name_, symbol_, decimals_);
         __ERC20PermitBase_init_unchained(name_);
     }
 
-    function __ERC20PermitBase_init_unchained(string memory name_) internal {
+    function __ERC20PermitBase_init_unchained(string memory name_) internal virtual {
         __EIP712_init_unchained(name_, "1");
     }
 
-    /// @dev `keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)")`.
-    bytes32 private constant _PERMIT_TYPEHASH =
-        0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
-
     /// @inheritdoc IERC20Permit
-    function nonces(address owner) external view returns (uint256 result) {
+    function nonces(address owner) external view virtual returns (uint256 result) {
         return _latestNonce(owner);
     }
 
@@ -51,6 +52,7 @@ abstract contract ERC20PermitBase is IERC20PermitBase, IERC20Permit, ERC20, EIP7
         bytes32 s
     )
         external
+        virtual
     {
         if (block.timestamp > deadline) {
             revert ERC2612ExpiredSignature(deadline);
@@ -72,7 +74,7 @@ abstract contract ERC20PermitBase is IERC20PermitBase, IERC20Permit, ERC20, EIP7
     }
 
     /// @inheritdoc IERC20Permit
-    function DOMAIN_SEPARATOR() external view returns (bytes32 result) {
+    function DOMAIN_SEPARATOR() external view virtual returns (bytes32 result) {
         return _domainSeparatorV4();
     }
 }

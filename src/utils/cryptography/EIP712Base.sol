@@ -41,13 +41,13 @@ abstract contract EIP712Base {
     bytes32 internal constant STORAGE_SLOT =
         0x219639d1c7dec7d049ffb8dc11e39f070f052764b142bd61682a7811a502a600;
 
-    function _getEIP712Storage() internal pure returns (EIP712Storage storage $) {
+    function _getEIP712Storage() internal pure virtual returns (EIP712Storage storage $) {
         assembly {
             $.slot := STORAGE_SLOT
         }
     }
 
-    function __EIP712_init_unchained(string memory name, string memory version) internal {
+    function __EIP712_init_unchained(string memory name, string memory version) internal virtual {
         EIP712Storage storage $ = _getEIP712Storage();
         $.name = name;
         $.version = version;
@@ -60,7 +60,7 @@ abstract contract EIP712Base {
     /**
      * @dev Returns the domain separator for the current chain.
      */
-    function _domainSeparatorV4() internal view returns (bytes32) {
+    function _domainSeparatorV4() internal view virtual returns (bytes32) {
         return _getEIP712Storage().domainSeparatorV4();
     }
 
@@ -106,18 +106,20 @@ abstract contract EIP712Base {
     /**
      * @dev The hash of the name parameter for the EIP712 domain.
      *
-     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
+     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
+     * are a concern.
      */
-    function _EIP712NameHash() internal view returns (bytes32) {
+    function _EIP712NameHash() internal view virtual returns (bytes32) {
         return _getEIP712Storage()._EIP712NameHash();
     }
 
     /**
      * @dev The hash of the version parameter for the EIP712 domain.
      *
-     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
+     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
+     * are a concern.
      */
-    function _EIP712VersionHash() internal view returns (bytes32) {
+    function _EIP712VersionHash() internal view virtual returns (bytes32) {
         return _getEIP712Storage()._EIP712VersionHash();
     }
 }

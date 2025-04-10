@@ -27,7 +27,14 @@ contract EIP712Facet is IERC5267, EIP712Base, Nonces, Facet {
      * NOTE: These parameters cannot be changed except through a xref:learn::upgrading-smart-contracts.adoc[smart
      * contract upgrade].
      */
-    function __EIP712_init(string memory name, string memory version) external onlyInitializing {
+    function __EIP712_init(
+        string memory name,
+        string memory version
+    )
+        external
+        virtual
+        onlyInitializing
+    {
         __EIP712_init_unchained(name, version);
     }
 
@@ -35,7 +42,7 @@ contract EIP712Facet is IERC5267, EIP712Base, Nonces, Facet {
         return _domainSeparatorV4();
     }
 
-    function nonces(address owner) external view returns (uint256) {
+    function nonces(address owner) external view virtual returns (uint256) {
         return _latestNonce(owner);
     }
 

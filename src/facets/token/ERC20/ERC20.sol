@@ -19,6 +19,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
         uint8 decimals_
     )
         external
+        virtual
         onlyInitializing
     {
         __ERC20_init_unchained(name_, symbol_, decimals_);
@@ -30,6 +31,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
         uint8 decimals_
     )
         internal
+        virtual
     {
         _addInterface(type(IERC20).interfaceId);
         _addInterface(type(IERC20Permit).interfaceId);
@@ -46,12 +48,12 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @inheritdoc IERC20
-    function totalSupply() public view returns (uint256) {
+    function totalSupply() public view virtual returns (uint256) {
         return ERC20Storage.layout().inner.totalSupply;
     }
 
     /// @inheritdoc IERC20
-    function balanceOf(address account) public view returns (uint256) {
+    function balanceOf(address account) public view virtual returns (uint256) {
         return ERC20Storage.layout().inner.balanceOf(account);
     }
 
@@ -94,17 +96,17 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @inheritdoc IERC20Metadata
-    function name() public view returns (string memory) {
+    function name() public view virtual returns (string memory) {
         return ERC20Storage.layout().name;
     }
 
     /// @inheritdoc IERC20Metadata
-    function symbol() public view returns (string memory) {
+    function symbol() public view virtual returns (string memory) {
         return ERC20Storage.layout().symbol;
     }
 
     /// @inheritdoc IERC20Metadata
-    function decimals() public view returns (uint8) {
+    function decimals() public view virtual returns (uint8) {
         return ERC20Storage.layout().decimals;
     }
 
@@ -112,12 +114,12 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
     /*                           MINT                             */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    function _mint(address to, uint256 amount) internal {
+    function _mint(address to, uint256 amount) internal virtual {
         ERC20Storage.layout().inner.mint(to, amount);
         emit Transfer(address(0), to, amount);
     }
 
-    function _burn(address from, uint256 amount) internal {
+    function _burn(address from, uint256 amount) internal virtual {
         ERC20Storage.layout().inner.burn(from, amount);
         emit Transfer(from, address(0), amount);
     }
