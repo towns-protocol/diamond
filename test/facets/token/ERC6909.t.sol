@@ -5,15 +5,16 @@ pragma solidity ^0.8.19;
 import {TestUtils} from "test/TestUtils.sol";
 
 //interfaces
-import {IERC6909Base} from "src/facets/token/ERC6909/IERC6909.sol";
+import {IERC6909} from "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
 
 //libraries
+import {ERC6909Lib} from "src/primitive/ERC6909.sol";
 
 //contracts
 import {DeployMockERC6909} from "scripts/deployments/mocks/DeployMockERC6909.s.sol";
 import {MockERC6909} from "test/mocks/MockERC6909.sol";
 
-contract ERC6909Test is TestUtils, IERC6909Base {
+contract ERC6909Test is TestUtils {
     MockERC6909 facet;
 
     address constant ZERO_ADDRESS = address(0);
@@ -163,7 +164,9 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
         // No tokens minted, so balance is 0
         vm.prank(from);
-        vm.expectRevert(abi.encodeWithSelector(InsufficientBalance.selector, from, tokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(ERC6909Lib.InsufficientBalance.selector, from, tokenId)
+        );
         facet.transfer(to, tokenId, amount);
     }
 
@@ -180,7 +183,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
         vm.assume(owner != spender);
 
         vm.expectEmit(address(facet));
-        emit Approval(owner, spender, tokenId, amount);
+        emit IERC6909.Approval(owner, spender, tokenId, amount);
 
         vm.prank(owner);
         bool success = facet.approve(spender, tokenId, amount);
@@ -317,7 +320,9 @@ contract ERC6909Test is TestUtils, IERC6909Base {
         facet.approve(spender, tokenId, approvedAmount);
 
         vm.prank(spender);
-        vm.expectRevert(abi.encodeWithSelector(InsufficientPermission.selector, spender, tokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(ERC6909Lib.InsufficientPermission.selector, spender, tokenId)
+        );
         facet.transferFrom(owner, receiver, tokenId, amount);
     }
 
@@ -348,7 +353,9 @@ contract ERC6909Test is TestUtils, IERC6909Base {
         facet.approve(spender, tokenId, transferAmount);
 
         vm.prank(spender);
-        vm.expectRevert(abi.encodeWithSelector(InsufficientBalance.selector, owner, tokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(ERC6909Lib.InsufficientBalance.selector, owner, tokenId)
+        );
         facet.transferFrom(owner, receiver, tokenId, transferAmount);
     }
 
@@ -362,7 +369,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
         vm.assume(owner != operator);
 
         vm.expectEmit(address(facet));
-        emit OperatorSet(owner, operator, approved);
+        emit IERC6909.OperatorSet(owner, operator, approved);
 
         vm.prank(owner);
         bool success = facet.setOperator(operator, approved);
@@ -405,7 +412,9 @@ contract ERC6909Test is TestUtils, IERC6909Base {
 
         facet.mint(from, tokenId, mintAmount);
 
-        vm.expectRevert(abi.encodeWithSelector(InsufficientBalance.selector, from, tokenId));
+        vm.expectRevert(
+            abi.encodeWithSelector(ERC6909Lib.InsufficientBalance.selector, from, tokenId)
+        );
         facet.burn(from, tokenId, burnAmount);
     }
 
@@ -419,7 +428,7 @@ contract ERC6909Test is TestUtils, IERC6909Base {
         vm.assume(amount > 0);
 
         vm.expectEmit(address(facet));
-        emit Transfer(address(this), ZERO_ADDRESS, to, tokenId, amount);
+        emit IERC6909.Transfer(address(this), ZERO_ADDRESS, to, tokenId, amount);
 
         facet.mint(to, tokenId, amount);
         assertEq(facet.balanceOf(to, tokenId), amount);

@@ -2,17 +2,29 @@
 pragma solidity ^0.8.23;
 
 // interfaces
-import {IERC6909} from "./IERC6909.sol";
+import {
+    IERC6909,
+    IERC6909ContentURI,
+    IERC6909Metadata,
+    IERC6909TokenSupply
+} from "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 // libraries
-import {ERC6909Lib} from "../../../primitive/ERC6909.sol";
+import {ERC6909Lib, MinimalERC6909Storage} from "../../../primitive/ERC6909.sol";
 import {ERC6909Storage} from "./ERC6909Storage.sol";
 
 // contracts
 import {Facet} from "../../Facet.sol";
 
-abstract contract ERC6909 is Facet, IERC6909 {
-    using ERC6909Lib for ERC6909Lib.MinimalERC6909Storage;
+abstract contract ERC6909 is
+    Facet,
+    IERC6909,
+    IERC6909ContentURI,
+    IERC6909Metadata,
+    IERC6909TokenSupply
+{
+    using ERC6909Lib for MinimalERC6909Storage;
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                      ERC6909 METADATA                      */
@@ -22,31 +34,36 @@ abstract contract ERC6909 is Facet, IERC6909 {
         _addInterface(0x0f632fb3);
     }
 
-    /// @inheritdoc IERC6909
+    /// @inheritdoc IERC6909Metadata
     function name(uint256 id) public view virtual returns (string memory);
 
-    /// @inheritdoc IERC6909
+    /// @inheritdoc IERC6909Metadata
     function symbol(uint256 id) public view virtual returns (string memory);
 
-    /// @inheritdoc IERC6909
+    /// @inheritdoc IERC6909Metadata
     function decimals(uint256 id) public view virtual returns (uint8) {
         id = id; // Silence compiler warning.
         return 18;
     }
 
-    /// @inheritdoc IERC6909
+    /// @inheritdoc IERC6909ContentURI
     function contractURI() public view virtual returns (string memory) {
         return "";
     }
 
-    /// @inheritdoc IERC6909
+    /// @inheritdoc IERC6909ContentURI
     function tokenURI(uint256 id) public view virtual returns (string memory);
+
+    /// @inheritdoc IERC165
+    function supportsInterface(bytes4 interfaceId) external view virtual returns (bool) {
+        return _supportsInterface(interfaceId);
+    }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                          ERC6909                           */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    /// @inheritdoc IERC6909
+    /// @inheritdoc IERC6909TokenSupply
     function totalSupply(uint256 id) public view virtual returns (uint256) {
         return ERC6909Storage.getLayout().totalSupply(id);
     }
@@ -76,7 +93,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
     }
 
     /// @inheritdoc IERC6909
-    function transfer(address to, uint256 id, uint256 amount) external returns (bool) {
+    function transfer(address to, uint256 id, uint256 amount) external virtual returns (bool) {
         ERC6909Storage.getLayout().transfer(to, id, amount);
         emit Transfer(msg.sender, msg.sender, to, id, amount);
         return true;
@@ -90,6 +107,7 @@ abstract contract ERC6909 is Facet, IERC6909 {
         uint256 amount
     )
         external
+        virtual
         returns (bool)
     {
         ERC6909Storage.getLayout().transferFrom(from, to, id, amount);
@@ -98,14 +116,14 @@ abstract contract ERC6909 is Facet, IERC6909 {
     }
 
     /// @inheritdoc IERC6909
-    function approve(address spender, uint256 id, uint256 amount) external returns (bool) {
+    function approve(address spender, uint256 id, uint256 amount) external virtual returns (bool) {
         ERC6909Storage.getLayout().approve(spender, id, amount);
         emit Approval(msg.sender, spender, id, amount);
         return true;
     }
 
     /// @inheritdoc IERC6909
-    function setOperator(address operator, bool approved) external returns (bool) {
+    function setOperator(address operator, bool approved) external virtual returns (bool) {
         ERC6909Storage.getLayout().setOperator(operator, approved);
         emit OperatorSet(msg.sender, operator, approved);
         return true;
