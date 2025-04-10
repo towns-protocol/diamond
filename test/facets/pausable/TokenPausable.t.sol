@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.19;
 
 // utils
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";

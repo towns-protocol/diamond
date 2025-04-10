@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.19;
 
 import {ERC6909} from "src/facets/token/ERC6909/ERC6909.sol";
 
