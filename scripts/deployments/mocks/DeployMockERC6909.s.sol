@@ -3,25 +3,29 @@ pragma solidity ^0.8.23;
 
 // interfaces
 import {IDiamond} from "../../../src/IDiamond.sol";
-import {IERC6909} from "../../../src/facets/token/ERC6909/IERC6909.sol";
+import {
+    IERC6909,
+    IERC6909ContentURI,
+    IERC6909Metadata,
+    IERC6909TokenSupply
+} from "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
 
 // libraries
 import {DeployLib} from "../../common/DeployLib.sol";
 
 // contracts
-import {ERC6909} from "../../../src/facets/token/ERC6909/ERC6909.sol";
 import {MockERC6909} from "../../../test/mocks/MockERC6909.sol";
 
 library DeployMockERC6909 {
     function selectors() internal pure returns (bytes4[] memory _selectors) {
         _selectors = new bytes4[](15);
         // ERC6909
-        _selectors[0] = ERC6909.name.selector;
-        _selectors[1] = ERC6909.symbol.selector;
-        _selectors[2] = ERC6909.decimals.selector;
-        _selectors[3] = ERC6909.contractURI.selector;
-        _selectors[4] = ERC6909.tokenURI.selector;
-        _selectors[5] = IERC6909.totalSupply.selector;
+        _selectors[0] = IERC6909Metadata.name.selector;
+        _selectors[1] = IERC6909Metadata.symbol.selector;
+        _selectors[2] = IERC6909Metadata.decimals.selector;
+        _selectors[3] = IERC6909ContentURI.contractURI.selector;
+        _selectors[4] = IERC6909ContentURI.tokenURI.selector;
+        _selectors[5] = IERC6909TokenSupply.totalSupply.selector;
         _selectors[6] = IERC6909.balanceOf.selector;
         _selectors[7] = IERC6909.allowance.selector;
         _selectors[8] = IERC6909.isOperator.selector;

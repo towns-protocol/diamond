@@ -1,20 +1,29 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {IERC6909Base} from "../facets/token/ERC6909/IERC6909.sol";
 import {MinimalERC20Storage} from "./ERC20.sol";
+
+/// @notice Minimal storage layout for ERC6909
+/// @dev Do not modify the layout of this struct especially if it's nested in another struct
+/// or used in a linear storage layout
+struct MinimalERC6909Storage {
+    mapping(uint256 id => MinimalERC20Storage) tokens;
+    mapping(address owner => mapping(address spender => bool)) operatorApprovals;
+}
 
 /// @title ERC6909Lib
 /// @notice Minimal ERC6909 implementation
 /// @dev The library implements the core functionality of an ERC6909 token without emitting events
 library ERC6909Lib {
-    /// @notice Minimal storage layout for ERC6909
-    /// @dev Do not modify the layout of this struct especially if it's nested in another struct
-    /// or used in a linear storage layout
-    struct MinimalERC6909Storage {
-        mapping(uint256 id => MinimalERC20Storage) tokens;
-        mapping(address owner => mapping(address spender => bool)) operatorApprovals;
-    }
+    /// @notice Thrown when owner balance for id is insufficient.
+    /// @param owner The address of the owner.
+    /// @param id The id of the token.
+    error InsufficientBalance(address owner, uint256 id);
+
+    /// @notice Thrown when spender allowance for id is insufficient.
+    /// @param spender The address of the spender.
+    /// @param id The id of the token.
+    error InsufficientPermission(address spender, uint256 id);
 
     /// @notice Returns the total supply of a specific token ID
     /// @param id The token ID to query
@@ -116,7 +125,7 @@ library ERC6909Lib {
         if (msg.sender != from && !isOperator(self, from, msg.sender)) {
             (bool insufficient,) = token._spendAllowanceNoRevert(from, msg.sender, amount);
             if (insufficient) {
-                revert IERC6909Base.InsufficientPermission(msg.sender, id);
+                revert InsufficientPermission(msg.sender, id);
             }
         }
         _deductBalance(token, from, id, amount);
@@ -226,7 +235,7 @@ library ERC6909Lib {
     {
         (bool underflow,) = token._deductBalanceNoRevert(from, amount);
         if (underflow) {
-            revert IERC6909Base.InsufficientBalance(from, id);
+            revert InsufficientBalance(from, id);
         }
     }
 }
