@@ -6,16 +6,23 @@ import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
 import {DeployLib} from "../../common/DeployLib.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 //contracts
 import {TokenPausableFacet} from "../../../src/facets/pausable/token/TokenPausableFacet.sol";
 
 library DeployTokenPausable {
-    function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](3);
-        _selectors[0] = TokenPausableFacet.pause.selector;
-        _selectors[1] = TokenPausableFacet.unpause.selector;
-        _selectors[2] = TokenPausableFacet.paused.selector;
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
+
+    function selectors() internal pure returns (bytes4[] memory res) {
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p().reserve(3);
+        arr.p(TokenPausableFacet.pause.selector);
+        arr.p(TokenPausableFacet.unpause.selector);
+        arr.p(TokenPausableFacet.paused.selector);
+        bytes32[] memory selectors_ = arr.asBytes32Array();
+        assembly ("memory-safe") {
+            res := selectors_
+        }
     }
 
     function makeCut(

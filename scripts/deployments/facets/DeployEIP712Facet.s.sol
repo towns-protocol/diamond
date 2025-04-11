@@ -6,16 +6,23 @@ import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
 import {DeployLib} from "../../common/DeployLib.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 //contracts
 import {EIP712Facet} from "../../../src/utils/cryptography/EIP712Facet.sol";
 
 library DeployEIP712Facet {
-    function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](3);
-        _selectors[0] = EIP712Facet.DOMAIN_SEPARATOR.selector;
-        _selectors[1] = EIP712Facet.nonces.selector;
-        _selectors[2] = EIP712Facet.eip712Domain.selector;
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
+
+    function selectors() internal pure returns (bytes4[] memory res) {
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p().reserve(3);
+        arr.p(EIP712Facet.DOMAIN_SEPARATOR.selector);
+        arr.p(EIP712Facet.nonces.selector);
+        arr.p(EIP712Facet.eip712Domain.selector);
+        bytes32[] memory selectors_ = arr.asBytes32Array();
+        assembly ("memory-safe") {
+            res := selectors_
+        }
     }
 
     function makeCut(

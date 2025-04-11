@@ -6,17 +6,24 @@ import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
 import {DeployLib} from "../../common/DeployLib.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 //contracts
 import {DiamondLoupeFacet} from "../../../src/facets/loupe/DiamondLoupeFacet.sol";
 
 library DeployDiamondLoupe {
-    function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](4);
-        _selectors[0] = DiamondLoupeFacet.facets.selector;
-        _selectors[1] = DiamondLoupeFacet.facetAddress.selector;
-        _selectors[2] = DiamondLoupeFacet.facetFunctionSelectors.selector;
-        _selectors[3] = DiamondLoupeFacet.facetAddresses.selector;
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
+
+    function selectors() internal pure returns (bytes4[] memory res) {
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p().reserve(4);
+        arr.p(DiamondLoupeFacet.facets.selector);
+        arr.p(DiamondLoupeFacet.facetAddress.selector);
+        arr.p(DiamondLoupeFacet.facetFunctionSelectors.selector);
+        arr.p(DiamondLoupeFacet.facetAddresses.selector);
+        bytes32[] memory selectors_ = arr.asBytes32Array();
+        assembly ("memory-safe") {
+            res := selectors_
+        }
     }
 
     function makeCut(
