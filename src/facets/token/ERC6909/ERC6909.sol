@@ -30,7 +30,11 @@ abstract contract ERC6909 is
     /*                      ERC6909 METADATA                      */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    function __ERC6909_init() internal {
+    function __ERC6909_init() external virtual onlyInitializing {
+        __ERC6909_init_unchained();
+    }
+
+    function __ERC6909_init_unchained() internal virtual {
         _addInterface(0x0f632fb3);
     }
 

@@ -5,7 +5,7 @@ import {ERC6909} from "src/facets/token/ERC6909/ERC6909.sol";
 
 contract MockERC6909 is ERC6909 {
     constructor() {
-        __ERC6909_init();
+        __ERC6909_init_unchained();
     }
 
     function name(uint256) public pure override returns (string memory) {
