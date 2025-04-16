@@ -4,11 +4,11 @@ pragma solidity ^0.8.4;
 /// @dev WARNING! This mock is strictly intended for testing purposes only.
 /// Do NOT copy anything here into production code unless you really know what you are doing.
 contract Brutalizer {
-    /// @dev Multiplier for a mulmod Lehmer psuedorandom number generator.
+    /// @dev Multiplier for a mulmod Lehmer pseudorandom number generator.
     /// Prime, and a primitive root of `_LPRNG_MODULO`.
     uint256 private constant _LPRNG_MULTIPLIER = 0x100000000000000000000000000000051;
 
-    /// @dev Modulo for a mulmod Lehmer psuedorandom number generator. (prime)
+    /// @dev Modulo for a mulmod Lehmer pseudorandom number generator. (prime)
     uint256 private constant _LPRNG_MODULO =
         0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff43;
 
