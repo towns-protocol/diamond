@@ -63,11 +63,11 @@ contract TestPlus is Brutalizer {
     /// @dev Some constant to brutalize the upper bits of addresses.
     uint256 private constant _ADDRESS_BRUTALIZER = 0xc0618c2bfd481dcf3e31738f;
 
-    /// @dev Multiplier for a mulmod Lehmer psuedorandom number generator.
+    /// @dev Multiplier for a mulmod Lehmer pseudorandom number generator.
     /// Prime, and a primitive root of `_LPRNG_MODULO`.
     uint256 private constant _LPRNG_MULTIPLIER = 0x100000000000000000000000000000051;
 
-    /// @dev Modulo for a mulmod Lehmer psuedorandom number generator. (prime)
+    /// @dev Modulo for a mulmod Lehmer pseudorandom number generator. (prime)
     uint256 private constant _LPRNG_MODULO =
         0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff43;
 
