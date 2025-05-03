@@ -6,6 +6,7 @@ import {IDiamond} from "../../../src/IDiamond.sol";
 
 // libraries
 import {DeployLib} from "../../common/DeployLib.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 // contracts
 import {ERC20} from "../../../src/facets/token/ERC20/ERC20.sol";
@@ -13,24 +14,31 @@ import {ERC20PermitBase} from "../../../src/facets/token/ERC20/permit/ERC20Permi
 import {MockERC20Permit} from "../../../test/mocks/MockERC20Permit.sol";
 
 library DeployMockERC20Permit {
-    function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](13);
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
+
+    function selectors() internal pure returns (bytes4[] memory res) {
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p().reserve(13);
         // ERC20
-        _selectors[0] = ERC20.totalSupply.selector;
-        _selectors[1] = ERC20.balanceOf.selector;
-        _selectors[2] = ERC20.allowance.selector;
-        _selectors[3] = ERC20.approve.selector;
-        _selectors[4] = ERC20.transfer.selector;
-        _selectors[5] = ERC20.transferFrom.selector;
-        _selectors[6] = MockERC20Permit.mint.selector;
+        arr.p(ERC20.totalSupply.selector);
+        arr.p(ERC20.balanceOf.selector);
+        arr.p(ERC20.allowance.selector);
+        arr.p(ERC20.approve.selector);
+        arr.p(ERC20.transfer.selector);
+        arr.p(ERC20.transferFrom.selector);
+        arr.p(MockERC20Permit.mint.selector);
         // Metadata
-        _selectors[7] = ERC20.name.selector;
-        _selectors[8] = ERC20.symbol.selector;
-        _selectors[9] = ERC20.decimals.selector;
+        arr.p(ERC20.name.selector);
+        arr.p(ERC20.symbol.selector);
+        arr.p(ERC20.decimals.selector);
         // Permit
-        _selectors[10] = ERC20PermitBase.nonces.selector;
-        _selectors[11] = ERC20PermitBase.permit.selector;
-        _selectors[12] = ERC20PermitBase.DOMAIN_SEPARATOR.selector;
+        arr.p(ERC20PermitBase.nonces.selector);
+        arr.p(ERC20PermitBase.permit.selector);
+        arr.p(ERC20PermitBase.DOMAIN_SEPARATOR.selector);
+
+        bytes32[] memory selectors_ = arr.asBytes32Array();
+        assembly ("memory-safe") {
+            res := selectors_
+        }
     }
 
     function makeCut(

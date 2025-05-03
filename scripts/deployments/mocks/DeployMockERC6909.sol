@@ -12,29 +12,36 @@ import {
 
 // libraries
 import {DeployLib} from "../../common/DeployLib.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 // contracts
 import {MockERC6909} from "../../../test/mocks/MockERC6909.sol";
 
 library DeployMockERC6909 {
-    function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](15);
-        // ERC6909
-        _selectors[0] = IERC6909Metadata.name.selector;
-        _selectors[1] = IERC6909Metadata.symbol.selector;
-        _selectors[2] = IERC6909Metadata.decimals.selector;
-        _selectors[3] = IERC6909ContentURI.contractURI.selector;
-        _selectors[4] = IERC6909ContentURI.tokenURI.selector;
-        _selectors[5] = IERC6909TokenSupply.totalSupply.selector;
-        _selectors[6] = IERC6909.balanceOf.selector;
-        _selectors[7] = IERC6909.allowance.selector;
-        _selectors[8] = IERC6909.isOperator.selector;
-        _selectors[9] = IERC6909.transfer.selector;
-        _selectors[10] = IERC6909.transferFrom.selector;
-        _selectors[11] = IERC6909.approve.selector;
-        _selectors[12] = IERC6909.setOperator.selector;
-        _selectors[13] = MockERC6909.mint.selector;
-        _selectors[14] = MockERC6909.burn.selector;
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
+
+    function selectors() internal pure returns (bytes4[] memory res) {
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p().reserve(15);
+        arr.p(IERC6909Metadata.name.selector);
+        arr.p(IERC6909Metadata.symbol.selector);
+        arr.p(IERC6909Metadata.decimals.selector);
+        arr.p(IERC6909ContentURI.contractURI.selector);
+        arr.p(IERC6909ContentURI.tokenURI.selector);
+        arr.p(IERC6909TokenSupply.totalSupply.selector);
+        arr.p(IERC6909.balanceOf.selector);
+        arr.p(IERC6909.allowance.selector);
+        arr.p(IERC6909.isOperator.selector);
+        arr.p(IERC6909.transfer.selector);
+        arr.p(IERC6909.transferFrom.selector);
+        arr.p(IERC6909.approve.selector);
+        arr.p(IERC6909.setOperator.selector);
+        arr.p(MockERC6909.mint.selector);
+        arr.p(MockERC6909.burn.selector);
+
+        bytes32[] memory selectors_ = arr.asBytes32Array();
+        assembly ("memory-safe") {
+            res := selectors_
+        }
     }
 
     function makeCut(
