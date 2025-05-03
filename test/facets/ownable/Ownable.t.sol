@@ -43,7 +43,7 @@ contract OwnableTest is TestUtils, IOwnableBase {
         ownable.transferOwnership(newOwner);
     }
 
-    function test_revertIZeroAddress() external {
+    function test_revertIfZeroAddress() external {
         vm.prank(deployer);
         vm.expectRevert(Ownable__ZeroAddress.selector);
         ownable.transferOwnership(address(0));
@@ -58,7 +58,7 @@ contract OwnableTest is TestUtils, IOwnableBase {
         ownable.transferOwnership(newOwner);
     }
 
-    function test_transerOwnership() external {
+    function test_transferOwnership() external {
         address newOwner = _randomAddress();
 
         vm.prank(deployer);

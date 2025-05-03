@@ -93,7 +93,7 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
 
     /// @dev Override to set the artifact output directory
     function outDir() internal pure virtual returns (string memory) {
-        return "out/";
+        return "out";
     }
 
     /// @dev Override to set the deployment cache path
@@ -168,13 +168,13 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
         string memory networkDir = networkDirPath();
 
         // create addresses directory
-        createDir(string.concat(networkDir, "/", "addresses"));
+        createDir(string.concat(networkDir, "/addresses"));
         createChainIdFile(networkDir);
 
         // Get directory from version name if it contains a "/"
         string memory typeDir = sliceBefore(versionName, "/", "");
         if (bytes(typeDir).length > 0) {
-            createDir(string.concat(networkDir, "/", "addresses", "/", typeDir));
+            createDir(string.concat(networkDir, "/addresses/", typeDir));
         }
 
         // get deployment path

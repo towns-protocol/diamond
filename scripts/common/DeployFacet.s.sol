@@ -37,7 +37,7 @@ contract DeployFacet is DeployBase {
         broadcastWith(deployer)
         returns (address)
     {
-        artifactPath = string.concat(outDir(), name, ".sol/", name, ".json");
+        artifactPath = string.concat(outDir(), "/", name, ".sol/", name, ".json");
         string memory versionName = string.concat("facets/", name);
 
         // call the base deploy function with our curried function
