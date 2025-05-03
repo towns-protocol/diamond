@@ -39,10 +39,8 @@ contract TokenPausableTest is TestUtils, ITokenOwnableBase, IPausableBase {
         mockToken = new MockToken();
         tokenId = mockToken.mintTo(owner);
 
-        vm.startPrank(deployer);
         address tokenOwnableFacet = DeployTokenOwnable.deploy();
         address tokenPausableFacet = DeployTokenPausable.deploy();
-        vm.stopPrank();
 
         diamondHelper.addFacet(
             DeployTokenOwnable.makeCut(tokenOwnableFacet, IDiamond.FacetCutAction.Add),

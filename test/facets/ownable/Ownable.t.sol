@@ -27,7 +27,6 @@ contract OwnableTest is TestUtils, IOwnableBase {
     function setUp() public {
         deployer = getDeployer();
 
-        vm.prank(deployer);
         address ownableFacet = DeployOwnable.deploy();
         diamondHelper.addCut(DeployOwnable.makeCut(ownableFacet, IDiamond.FacetCutAction.Add));
 

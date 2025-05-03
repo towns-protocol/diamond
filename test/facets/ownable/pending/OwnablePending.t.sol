@@ -27,7 +27,6 @@ contract OwnablePendingTest is TestUtils, IOwnableBase {
     function setUp() public {
         deployer = getDeployer();
 
-        vm.prank(deployer);
         address ownablePending = DeployOwnablePending.deploy();
 
         diamondHelper.addCut(
