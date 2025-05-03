@@ -12,7 +12,7 @@ import {ITokenOwnableBase} from "src/facets/ownable/token/ITokenOwnable.sol";
 
 // contracts
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployTokenOwnable} from "scripts/deployments/facets/DeployTokenOwnable.s.sol";
+import {DeployTokenOwnable} from "scripts/deployments/facets/DeployTokenOwnable.sol";
 import {TokenOwnableFacet} from "src/facets/ownable/token/TokenOwnableFacet.sol";
 
 // mocks

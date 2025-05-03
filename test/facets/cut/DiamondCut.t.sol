@@ -17,7 +17,7 @@ import {Errors} from "@openzeppelin/contracts/utils/Errors.sol";
 
 // contracts
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployDiamondCut} from "scripts/deployments/facets/DeployDiamondCut.s.sol";
+import {DeployDiamondCut} from "scripts/deployments/facets/DeployDiamondCut.sol";
 import {DeployMockFacet, MockFacet} from "test/mocks/MockFacet.sol";
 
 contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {

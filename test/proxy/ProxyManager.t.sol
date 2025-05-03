@@ -19,9 +19,9 @@ import {IMockFacet} from "test/mocks/MockFacet.sol";
 // contracts
 import {DeployFacet} from "../../scripts/common/DeployFacet.s.sol";
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployManagedProxy} from "scripts/deployments/facets/DeployManagedProxy.s.sol";
-import {DeployOwnable} from "scripts/deployments/facets/DeployOwnable.s.sol";
-import {DeployProxyManager} from "scripts/deployments/utils/DeployProxyManager.s.sol";
+import {DeployManagedProxy} from "scripts/deployments/facets/DeployManagedProxy.sol";
+import {DeployOwnable} from "scripts/deployments/facets/DeployOwnable.sol";
+import {DeployProxyManager} from "scripts/deployments/utils/DeployProxyManager.sol";
 import {ProxyManager} from "src/proxy/manager/ProxyManager.sol";
 import {DeployMockFacet, MockFacet} from "test/mocks/MockFacet.sol";
 

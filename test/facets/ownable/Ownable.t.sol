@@ -12,7 +12,7 @@ import {IERC173, IOwnableBase} from "src/facets/ownable/IERC173.sol";
 
 //contracts
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployOwnable} from "scripts/deployments/facets/DeployOwnable.s.sol";
+import {DeployOwnable} from "scripts/deployments/facets/DeployOwnable.sol";
 import {OwnableFacet} from "src/facets/ownable/OwnableFacet.sol";
 
 contract OwnableTest is TestUtils, IOwnableBase {

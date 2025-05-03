@@ -41,6 +41,6 @@ contract DeployFacet is DeployBase {
         string memory versionName = string.concat("facets/", name);
 
         // call the base deploy function with our curried function
-        return deploy(msg.sender, versionName, _deployWrapper);
+        return deploy(deployer, versionName, _deployWrapper);
     }
 }
