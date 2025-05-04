@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {ManagedProxyFacet} from "../../../src/proxy/managed/ManagedProxyFacet.sol";
@@ -37,6 +37,6 @@ library DeployManagedProxy {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("ManagedProxyFacet.sol", "");
+        return LibDeploy.deployCode("ManagedProxyFacet.sol", "");
     }
 }

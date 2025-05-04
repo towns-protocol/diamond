@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 // interfaces
 
 // libraries
-import {DeployLib} from "./DeployLib.sol";
+import {LibDeploy} from "../../src/utils/LibDeploy.sol";
 
 // contracts
 import {DeployBase} from "./DeployBase.s.sol";
@@ -14,7 +14,7 @@ contract DeployFacet is DeployBase {
 
     /// @dev Wrapper function that captures artifactPath in its closure
     function _deployWrapper(address) internal returns (address) {
-        return DeployLib.deployCode(artifactPath, "");
+        return LibDeploy.deployCode(artifactPath, "");
     }
 
     /// @notice Deploys a facet contract using the contract name from environment variables

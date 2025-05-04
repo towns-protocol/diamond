@@ -11,7 +11,7 @@ import {
 } from "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
 
 // libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 // contracts
@@ -60,6 +60,6 @@ library DeployMockERC6909 {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("MockERC6909.sol", "");
+        return LibDeploy.deployCode("MockERC6909.sol", "");
     }
 }
