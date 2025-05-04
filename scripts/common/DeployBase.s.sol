@@ -12,6 +12,8 @@ import {DeployHelpers} from "./DeployHelpers.s.sol";
 import {Script} from "forge-std/Script.sol";
 
 abstract contract DeployBase is Context, DeployHelpers, Script {
+    using LibString for *;
+
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                     DEPLOYMENT HELPERS                     */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
@@ -48,7 +50,7 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
         if (!overrideDeployment && existingAddr != address(0)) {
             info(
                 string.concat(unicode"📝 using an existing address for ", versionName, " at"),
-                LibString.toHexStringChecksummed(existingAddr)
+                existingAddr.toHexStringChecksummed()
             );
             return existingAddr;
         }
@@ -62,7 +64,7 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
                     chainIdAlias(),
                     unicode"\n\t📬 from deployer address"
                 ),
-                LibString.toHexStringChecksummed(deployer)
+                deployer.toHexStringChecksummed()
             );
         }
 
@@ -71,7 +73,7 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
         if (!isTesting()) {
             info(
                 string.concat(unicode"✅ ", versionName, " deployed at"),
-                LibString.toHexStringChecksummed(deployedAddr)
+                deployedAddr.toHexStringChecksummed()
             );
 
             if (deployedAddr != address(0)) {
@@ -135,11 +137,11 @@ abstract contract DeployBase is Context, DeployHelpers, Script {
         pure
         returns (string memory)
     {
-        uint256 charIndex = LibString.indexOf(fullString, char);
+        uint256 charIndex = fullString.indexOf(char);
         if (charIndex == LibString.NOT_FOUND) {
             return replacement;
         }
-        return LibString.slice(fullString, 0, charIndex);
+        return fullString.slice(0, charIndex);
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/

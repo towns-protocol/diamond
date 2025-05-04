@@ -11,7 +11,8 @@ contract LibDeployTest is Test {
     string private constant MOCK_FACET_PATH = "test/mocks/MockFacet.sol:MockFacet";
 
     function setUp() public {
-        vm.createSelectFork(getChain(1).rpcUrl, 14_353_601);
+        // Multicall3 is not deployed in test VM
+        vm.etch(MULTICALL3_ADDRESS, LibDeploy.MULTICALL3_BYTECODE);
     }
 
     function test_deployCode() public {

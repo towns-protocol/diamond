@@ -28,11 +28,22 @@ contract DeployDiamond is DiamondHelper, SimpleDeployer {
     }
 
     function diamondInitParams(address deployer) internal returns (Diamond.InitParams memory) {
-        address multiInit = facetHelper.deploy("MultiInit", deployer);
-        address diamondCut = facetHelper.deploy("DiamondCutFacet", deployer);
-        address diamondLoupe = facetHelper.deploy("DiamondLoupeFacet", deployer);
-        address introspection = facetHelper.deploy("IntrospectionFacet", deployer);
-        address ownable = facetHelper.deploy("OwnablePendingFacet", deployer);
+        // Queue up all facets for batch deployment
+        facetHelper.add("MultiInit");
+        facetHelper.add("DiamondCutFacet");
+        facetHelper.add("DiamondLoupeFacet");
+        facetHelper.add("IntrospectionFacet");
+        facetHelper.add("OwnablePendingFacet");
+
+        // Deploy all facets in a single batch transaction
+        facetHelper.deployBatch(deployer);
+
+        // Get deployed addresses
+        address multiInit = facetHelper.getDeployedAddress("MultiInit");
+        address diamondCut = facetHelper.getDeployedAddress("DiamondCutFacet");
+        address diamondLoupe = facetHelper.getDeployedAddress("DiamondLoupeFacet");
+        address introspection = facetHelper.getDeployedAddress("IntrospectionFacet");
+        address ownable = facetHelper.getDeployedAddress("OwnablePendingFacet");
 
         addFacet(
             DeployDiamondCut.makeCut(diamondCut, IDiamond.FacetCutAction.Add),
