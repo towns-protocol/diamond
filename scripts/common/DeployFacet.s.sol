@@ -57,7 +57,7 @@ contract DeployFacet is DeployBase {
     /// @notice Add a contract to the deployment queue with default salt (0)
     /// @param name Name of the contract to queue
     function add(string memory name) public {
-        add(name, 0);
+        add(name, bytes32(0));
     }
 
     /// @notice Add a contract to the deployment queue if it's not already deployed
@@ -158,7 +158,7 @@ contract DeployFacet is DeployBase {
     /// @param name Name of the contract
     /// @return The deployed address of the contract (address(0) if not deployed)
     function getDeployedAddress(string memory name) public view returns (address) {
-        return getDeployedAddress(name, 0);
+        return getDeployedAddress(name, bytes32(0));
     }
 
     /// @notice Get the deployed address for a contract by name and salt
@@ -166,24 +166,32 @@ contract DeployFacet is DeployBase {
     /// @param salt The salt used for deployment
     /// @return The deployed address of the contract (address(0) if not deployed)
     function getDeployedAddress(string memory name, bytes32 salt) public view returns (address) {
-        address predictedAddress;
-
-        // check if we have the init code hash cached
-        bytes32 initCodeHash = initCodeHashes[name];
-        if (initCodeHash != bytes32(0)) {
-            predictedAddress =
-                LibClone.predictDeterministicAddress(initCodeHash, salt, CREATE2_FACTORY);
-        } else {
-            string memory path = getArtifactPath(name);
-            bytes memory bytecode = vm.getCode(path);
-            predictedAddress =
-                LibClone.predictDeterministicAddress(keccak256(bytecode), salt, CREATE2_FACTORY);
-        }
+        address predictedAddress = predictAddress(name, salt);
 
         // check if the contract is actually deployed at this address
         if (predictedAddress.code.length > 0) return predictedAddress;
 
         return address(0); // not deployed
+    }
+
+    /// @notice Predict the address where a contract would be deployed using default salt (0)
+    /// @param name Name of the contract
+    /// @return The predicted address where the contract would be deployed
+    function predictAddress(string memory name) public view returns (address) {
+        return predictAddress(name, bytes32(0));
+    }
+
+    /// @notice Predict the address where a contract would be deployed
+    /// @param name Name of the contract
+    /// @param salt The salt to use for deployment
+    /// @return The predicted address where the contract would be deployed
+    function predictAddress(string memory name, bytes32 salt) public view returns (address) {
+        bytes32 initCodeHash = initCodeHashes[name];
+        // check if we have the init code hash cached
+        if (initCodeHash == bytes32(0)) {
+            initCodeHash = keccak256(vm.getCode(getArtifactPath(name)));
+        }
+        return LibClone.predictDeterministicAddress(initCodeHash, salt, CREATE2_FACTORY);
     }
 
     /// @notice Check if a contract is deployed
