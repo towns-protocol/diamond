@@ -41,7 +41,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
     function test_diamondCut() external {
         // create facet cuts
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
         extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
@@ -56,7 +55,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
     function test_diamondCut_reverts_when_not_owner() external {
         // create facet selectors
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
         extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
@@ -67,7 +65,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_reverts_when_init_not_contract() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
         extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
@@ -104,7 +101,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_revertsWhenSelectorArrayIsEmpty() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         facetCuts.push(
             IDiamond.FacetCut({
@@ -122,7 +118,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
 
     function test_revertWhen_initializeDiamondCut() external {
         // create facet selectors
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
         extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
@@ -136,7 +131,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     //                           Add Facet
     // =============================================================
     function test_revertWhenAddingFunctionAlreadyExists() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         IDiamond.FacetCut[] memory extensions = new IDiamond.FacetCut[](1);
         extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
@@ -152,7 +146,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_revertWhenAddingZeroSelector() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         bytes4[] memory facetSelectors = new bytes4[](1);
         facetSelectors[0] = bytes4(0);
@@ -172,7 +165,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     //                        Remove Facet
     // =============================================================
     function test_revertWhenRemovingFromOtherFacet() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         // create facet selectors
         bytes4[] memory facetSelectors = new bytes4[](1);
@@ -206,7 +198,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_revertWhenRemovingZeroSelector() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         // create facet selectors
         bytes4[] memory facetSelectors = new bytes4[](1);
@@ -252,7 +243,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     //                        Replace Facet
     // =============================================================
     function test_revertWhenReplacingZeroSelector() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         bytes4[] memory facetSelectors = new bytes4[](1);
         facetSelectors[0] = bytes4(0);
@@ -269,7 +259,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_revertWhenReplacingFunctionFromSameFacet() external {
-        vm.prank(deployer);
         address mockFacet = DeployMockFacet.deploy();
         bytes4[] memory facetSelectors = new bytes4[](1);
         facetSelectors[0] = IMockFacet.mockFunction.selector;
@@ -312,7 +301,6 @@ contract DiamondCutTest is TestUtils, IDiamondCutBase, IOwnableBase {
     }
 
     function test_revertWhenReplacingDiamondCut() external {
-        vm.prank(deployer);
         address cutFacet = DeployDiamondCut.deploy();
         bytes4[] memory selectors = new bytes4[](1);
         selectors[0] = IDiamondCut.diamondCut.selector;

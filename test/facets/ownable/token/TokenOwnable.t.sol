@@ -33,7 +33,6 @@ contract TokenOwnableTest is TestUtils, ITokenOwnableBase {
         deployer = getDeployer();
         owner = makeAddr("owner");
 
-        vm.prank(deployer);
         address tokenOwnableFacet = DeployTokenOwnable.deploy();
 
         mockToken = new MockToken();

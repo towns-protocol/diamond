@@ -25,7 +25,6 @@ contract PausableTest is TestUtils, IPausableBase {
 
     function setUp() public {
         deployer = getDeployer();
-        vm.prank(deployer);
         address pausableFacet = DeployPausable.deploy();
 
         diamondHelper.addFacet(
