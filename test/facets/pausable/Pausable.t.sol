@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 // utils
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployPausable} from "scripts/deployments/facets/DeployPausable.s.sol";
+import {DeployPausable} from "scripts/deployments/facets/DeployPausable.sol";
 import {TestUtils} from "test/TestUtils.sol";
 
 // interfaces

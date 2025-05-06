@@ -11,7 +11,7 @@ import {IERC6909} from "@openzeppelin/contracts/interfaces/draft-IERC6909.sol";
 import {ERC6909Lib} from "src/primitive/ERC6909.sol";
 
 //contracts
-import {DeployMockERC6909} from "scripts/deployments/mocks/DeployMockERC6909.s.sol";
+import {DeployMockERC6909} from "scripts/deployments/mocks/DeployMockERC6909.sol";
 import {MockERC6909} from "test/mocks/MockERC6909.sol";
 
 contract ERC6909Test is TestUtils {

@@ -12,7 +12,7 @@ import {IOwnableBase} from "src/facets/ownable/IERC173.sol";
 
 // contracts
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployOwnablePending} from "scripts/deployments/facets/DeployOwnablePending.s.sol";
+import {DeployOwnablePending} from "scripts/deployments/facets/DeployOwnablePending.sol";
 import {OwnablePendingFacet} from "src/facets/ownable/pending/OwnablePendingFacet.sol";
 
 contract OwnablePendingTest is TestUtils, IOwnableBase {

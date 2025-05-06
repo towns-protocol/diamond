@@ -6,25 +6,32 @@ import {IDiamond} from "../../../src/IDiamond.sol";
 
 // libraries
 import {DeployLib} from "../../common/DeployLib.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 
 // contracts
 import {ERC721} from "../../../src/facets/token/ERC721/ERC721.sol";
 import {MockERC721} from "../../../test/mocks/MockERC721.sol";
 
 library DeployMockERC721 {
-    function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](10);
-        // ERC721
-        _selectors[0] = ERC721.totalSupply.selector;
-        _selectors[1] = ERC721.balanceOf.selector;
-        _selectors[2] = ERC721.ownerOf.selector;
-        _selectors[3] = ERC721.approve.selector;
-        _selectors[4] = ERC721.getApproved.selector;
-        _selectors[5] = ERC721.setApprovalForAll.selector;
-        _selectors[6] = ERC721.isApprovedForAll.selector;
-        _selectors[7] = bytes4(keccak256("safeTransferFrom(address,address,uint256)"));
-        _selectors[8] = bytes4(keccak256("safeTransferFrom(address,address,uint256,bytes)"));
-        _selectors[9] = ERC721.transferFrom.selector;
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
+
+    function selectors() internal pure returns (bytes4[] memory res) {
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p().reserve(10);
+        arr.p(ERC721.totalSupply.selector);
+        arr.p(ERC721.balanceOf.selector);
+        arr.p(ERC721.ownerOf.selector);
+        arr.p(ERC721.approve.selector);
+        arr.p(ERC721.getApproved.selector);
+        arr.p(ERC721.setApprovalForAll.selector);
+        arr.p(ERC721.isApprovedForAll.selector);
+        arr.p(bytes4(keccak256("safeTransferFrom(address,address,uint256)")));
+        arr.p(bytes4(keccak256("safeTransferFrom(address,address,uint256,bytes)")));
+        arr.p(ERC721.transferFrom.selector);
+
+        bytes32[] memory selectors_ = arr.asBytes32Array();
+        assembly ("memory-safe") {
+            res := selectors_
+        }
     }
 
     function makeCut(

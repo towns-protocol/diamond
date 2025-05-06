@@ -3,8 +3,8 @@ pragma solidity ^0.8.19;
 
 // utils
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployTokenOwnable} from "scripts/deployments/facets/DeployTokenOwnable.s.sol";
-import {DeployTokenPausable} from "scripts/deployments/facets/DeployTokenPausable.s.sol";
+import {DeployTokenOwnable} from "scripts/deployments/facets/DeployTokenOwnable.sol";
+import {DeployTokenPausable} from "scripts/deployments/facets/DeployTokenPausable.sol";
 import {TestUtils} from "test/TestUtils.sol";
 
 // interfaces

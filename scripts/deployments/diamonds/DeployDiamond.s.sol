@@ -12,10 +12,10 @@ import {SimpleDeployer} from "../../common/deployers/SimpleDeployer.s.sol";
 
 // deployments
 import {DeployFacet} from "../../common/DeployFacet.s.sol";
-import {DeployDiamondCut} from "../facets/DeployDiamondCut.s.sol";
-import {DeployDiamondLoupe} from "../facets/DeployDiamondLoupe.s.sol";
-import {DeployIntrospection} from "../facets/DeployIntrospection.s.sol";
-import {DeployOwnablePending} from "../facets/DeployOwnablePending.s.sol";
+import {DeployDiamondCut} from "../facets/DeployDiamondCut.sol";
+import {DeployDiamondLoupe} from "../facets/DeployDiamondLoupe.sol";
+import {DeployIntrospection} from "../facets/DeployIntrospection.sol";
+import {DeployOwnablePending} from "../facets/DeployOwnablePending.sol";
 
 // utils
 import {MultiInit} from "../../../src/initializers/MultiInit.sol";
