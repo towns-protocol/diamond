@@ -2,14 +2,14 @@
 pragma solidity ^0.8.19;
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {MultiInit} from "../../../src/initializers/MultiInit.sol";
 
 library DeployMultiInit {
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("MultiInit.sol", "");
+        return LibDeploy.deployCode("MultiInit.sol", "");
     }
 
     function makeInitData(

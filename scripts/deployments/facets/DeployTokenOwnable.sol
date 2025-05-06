@@ -6,7 +6,7 @@ import {IDiamond} from "../../../src/IDiamond.sol";
 import {ITokenOwnableBase} from "../../../src/facets/ownable/token/ITokenOwnable.sol";
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {TokenOwnableFacet} from "../../../src/facets/ownable/token/TokenOwnableFacet.sol";
@@ -42,6 +42,6 @@ library DeployTokenOwnable {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("TokenOwnableFacet.sol", "");
+        return LibDeploy.deployCode("TokenOwnableFacet.sol", "");
     }
 }

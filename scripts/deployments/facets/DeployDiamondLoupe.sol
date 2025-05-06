@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {DiamondLoupeFacet} from "../../../src/facets/loupe/DiamondLoupeFacet.sol";
@@ -39,6 +39,6 @@ library DeployDiamondLoupe {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("DiamondLoupeFacet.sol", "");
+        return LibDeploy.deployCode("DiamondLoupeFacet.sol", "");
     }
 }

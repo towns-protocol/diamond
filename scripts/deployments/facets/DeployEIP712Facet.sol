@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {EIP712Facet} from "../../../src/utils/cryptography/EIP712Facet.sol";
@@ -45,6 +45,6 @@ library DeployEIP712Facet {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("EIP712Facet.sol", "");
+        return LibDeploy.deployCode("EIP712Facet.sol", "");
     }
 }

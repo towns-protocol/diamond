@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IDiamond} from "../../src/IDiamond.sol";
 
 // libraries
-import {DeployLib} from "../../scripts/common/DeployLib.sol";
+import {LibDeploy} from "../../src/utils/LibDeploy.sol";
 
 // contracts
 import {Facet} from "../../src/facets/Facet.sol";
@@ -96,6 +96,6 @@ library DeployMockFacet {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("out/MockFacet.sol/MockFacet.json", "");
+        return LibDeploy.deployCode("out/MockFacet.sol/MockFacet.json", "");
     }
 }

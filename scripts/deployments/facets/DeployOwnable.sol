@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {OwnableFacet} from "../../../src/facets/ownable/OwnableFacet.sol";
@@ -37,6 +37,6 @@ library DeployOwnable {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("OwnableFacet.sol", "");
+        return LibDeploy.deployCode("OwnableFacet.sol", "");
     }
 }

@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import {IDiamond} from "../../../src/IDiamond.sol";
 
 //libraries
-import {DeployLib} from "../../common/DeployLib.sol";
+import {LibDeploy} from "../../../src/utils/LibDeploy.sol";
 
 //contracts
 import {TokenPausableFacet} from "../../../src/facets/pausable/token/TokenPausableFacet.sol";
@@ -38,6 +38,6 @@ library DeployTokenPausable {
     }
 
     function deploy() internal returns (address) {
-        return DeployLib.deployCode("TokenPausableFacet.sol", "");
+        return LibDeploy.deployCode("TokenPausableFacet.sol", "");
     }
 }
