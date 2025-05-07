@@ -60,6 +60,36 @@ The implementation uses custom low-level primitives to maximize gas efficiency:
 - **AllowanceMap**: Optimized double mapping for token allowances
 - **ERC20/ERC721/ERC6909 Primitives**: Core token implementations designed for Diamond pattern integration
 
+## Scripts
+
+This repository includes deployment scripts that make it easy to work with the Diamond pattern:
+
+### DeployFacet
+
+Located in `scripts/common/DeployFacet.s.sol`, this script provides optimized deployment utilities for efficient contract deployment. It features:
+
+- Deterministic deployments using CREATE2
+- Batch deployment of multiple contracts
+- Gas estimation with block limit safeguards
+- Deployment address prediction
+
+Example usage:
+
+```bash
+# Deploy a single facet
+CONTRACT_NAME=MyFacet forge script DeployFacet
+
+# Deploy a batch of contracts
+# (See scripts/README.md for API details)
+```
+
+**Prerequisites**:
+
+- CREATE2 Factory (`0x4e59b44847b379578588920cA78FbF26c0B4956C`)
+- Multicall3 (`0xcA11bde05977b3631167028862bE2a173976CA11`)
+
+DeployFacet handles all the complexities of gas optimization and deterministic addressing, making deployments more predictable and cost-effective.
+
 ## Development
 
 This project uses [Foundry](https://book.getfoundry.sh/) for development, testing, and deployment.
@@ -95,7 +125,7 @@ forge test
 ### Format
 
 ```bash
-bun prettier:fix
+forge fmt
 ```
 
 ## License
