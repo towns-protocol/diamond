@@ -46,17 +46,17 @@ contract DeployDiamond is DiamondHelper, SimpleDeployer {
         address ownable = facetHelper.getDeployedAddress("OwnablePendingFacet");
 
         addFacet(
-            DeployDiamondCut.makeCut(diamondCut, IDiamond.FacetCutAction.Add),
+            makeCut(diamondCut, IDiamond.FacetCutAction.Add, DeployDiamondCut.selectors()),
             diamondCut,
             DeployDiamondCut.makeInitData()
         );
         addFacet(
-            DeployDiamondLoupe.makeCut(diamondLoupe, IDiamond.FacetCutAction.Add),
+            makeCut(diamondLoupe, IDiamond.FacetCutAction.Add, DeployDiamondLoupe.selectors()),
             diamondLoupe,
             DeployDiamondLoupe.makeInitData()
         );
         addFacet(
-            DeployIntrospection.makeCut(introspection, IDiamond.FacetCutAction.Add),
+            makeCut(introspection, IDiamond.FacetCutAction.Add, DeployIntrospection.selectors()),
             introspection,
             DeployIntrospection.makeInitData()
         );

@@ -16,6 +16,7 @@ library DeployDiamondCut {
         _selectors[0] = DiamondCutFacet.diamondCut.selector;
     }
 
+    /// @dev Use makeCut on DiamondHelper instead
     function makeCut(
         address facetAddress,
         IDiamond.FacetCutAction action

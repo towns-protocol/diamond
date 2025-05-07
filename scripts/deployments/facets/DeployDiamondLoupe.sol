@@ -19,6 +19,7 @@ library DeployDiamondLoupe {
         _selectors[3] = DiamondLoupeFacet.facetAddresses.selector;
     }
 
+    /// @dev Use makeCut on DiamondHelper instead
     function makeCut(
         address facetAddress,
         IDiamond.FacetCutAction action
