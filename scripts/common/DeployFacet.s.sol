@@ -14,12 +14,22 @@ import {DeployBase} from "./DeployBase.s.sol";
 contract DeployFacet is DeployBase {
     using LibString for *;
 
+    /// @dev Constants for gas estimation
+    uint256 internal constant BLOCK_GAS_LIMIT = 30_000_000;
+    uint256 internal constant BASE_TX_COST = 21_000;
+    uint256 internal constant CONTRACT_CREATION_COST = 32_000;
+    uint256 internal constant STORAGE_VARIABLE_COST = 22_100;
+    uint256 internal constant DEPLOYED_BYTECODE_COST_PER_BYTE = 200;
+
     /// @dev Queue for batch deployments
-    string[] private deploymentQueue;
-    bytes32[] private saltQueue;
+    string[] internal deploymentQueue;
+    bytes32[] internal saltQueue;
 
     /// @dev Cache for init code hashes to avoid recomputing
-    mapping(string => bytes32) private initCodeHashes;
+    mapping(string => bytes32) internal initCodeHashes;
+
+    /// @notice Running total of estimated gas for deployment batch
+    uint256 public batchGasEstimate;
 
     string private artifactPath;
 
@@ -62,13 +72,45 @@ contract DeployFacet is DeployBase {
 
     /// @notice Add a contract to the deployment queue if it's not already deployed
     /// @param name Name of the contract to queue
-    /// @param salt Optional salt to use for CREATE2 deployment (defaults to bytes32(0) if not provided)
+    /// @param salt The salt to use for CREATE2 deployment
     function add(string memory name, bytes32 salt) public {
-        // only add to queue if not already deployed
-        if (!isDeployed(name, salt)) {
-            deploymentQueue.push(name);
-            saltQueue.push(salt);
+        // check if we already have the init code hash cached
+        bytes32 initCodeHash = initCodeHashes[name];
+
+        // if not cached, get bytecode and cache its hash
+        bytes memory bytecode;
+        if (initCodeHash == bytes32(0)) {
+            bytecode = vm.getCode(getArtifactPath(name));
+            initCodeHash = keccak256(bytecode);
+            initCodeHashes[name] = initCodeHash;
         }
+
+        // only add to queue if not already deployed
+        if (isDeployed(name, salt)) return;
+
+        // get bytecode for gas estimation if we didn't already load it
+        // i.e. if adding the same contract multiple times
+        if (bytecode.length == 0) {
+            bytecode = vm.getCode(getArtifactPath(name));
+        }
+
+        // estimate gas cost for this deployment
+        batchGasEstimate += estimateDeploymentGas(bytecode);
+
+        // check if adding this contract would exceed block gas limit
+        if (batchGasEstimate > BLOCK_GAS_LIMIT) {
+            warn(
+                string.concat(
+                    "DeployFacet: Adding contract ",
+                    name,
+                    " may exceed block gas limit 30_000_000. Deploy current batch first."
+                )
+            );
+        }
+
+        // add to the queue and update gas estimate
+        deploymentQueue.push(name);
+        saltQueue.push(salt);
     }
 
     /// @notice Deploy all contracts in the queue using batch deployment
@@ -87,7 +129,9 @@ contract DeployFacet is DeployBase {
                     " contracts",
                     unicode"\n\t⚡️ on ",
                     chainIdAlias(),
-                    unicode"\n\t📬 from deployer address"
+                    unicode"\n\t📬 from deployer address",
+                    unicode"\n\t⛽ estimated gas: ",
+                    batchGasEstimate.toString()
                 ),
                 deployer.toHexStringChecksummed()
             );
@@ -114,9 +158,6 @@ contract DeployFacet is DeployBase {
             string memory path = getArtifactPath(name);
             bytecodes[i] = vm.getCode(path);
             salts[i] = saltQueue[i];
-
-            // cache the init code hash for this contract for future lookups
-            initCodeHashes[name] = keccak256(bytecodes[i]);
         }
 
         address[] memory deployedAddresses = LibDeploy.deployMultiple(bytecodes, salts);
@@ -141,6 +182,7 @@ contract DeployFacet is DeployBase {
     function clearQueue() public {
         delete deploymentQueue;
         delete saltQueue;
+        batchGasEstimate = 0;
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -150,8 +192,13 @@ contract DeployFacet is DeployBase {
     /// @notice Get the current deployment queue
     /// @return names Array of contract names in the queue
     /// @return salts Array of salts for each contract
-    function getQueue() external view returns (string[] memory names, bytes32[] memory salts) {
-        return (deploymentQueue, saltQueue);
+    /// @return gasEstimate Current estimated gas for the batch
+    function getQueue()
+        external
+        view
+        returns (string[] memory names, bytes32[] memory salts, uint256 gasEstimate)
+    {
+        return (deploymentQueue, saltQueue, batchGasEstimate);
     }
 
     /// @notice Get the deployed address for a contract by name using default salt (0)
@@ -220,5 +267,14 @@ contract DeployFacet is DeployBase {
 
     function getArtifactPath(string memory name) internal pure returns (string memory) {
         return string.concat(outDir(), "/", name, ".sol/", name, ".json");
+    }
+
+    /// @notice Estimate gas cost for deploying a contract
+    /// @param bytecode The contract bytecode
+    /// @return gas Estimated gas cost
+    function estimateDeploymentGas(bytes memory bytecode) internal view returns (uint256 gas) {
+        if (deploymentQueue.length == 0) gas = BASE_TX_COST;
+        gas += CONTRACT_CREATION_COST + STORAGE_VARIABLE_COST
+            + bytecode.length * DEPLOYED_BYTECODE_COST_PER_BYTE;
     }
 }

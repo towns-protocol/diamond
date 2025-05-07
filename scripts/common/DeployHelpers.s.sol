@@ -42,6 +42,10 @@ abstract contract DeployHelpers is CommonBase {
         console.log(string.concat("[INFO]: ", unicode"✅ ", message), arg);
     }
 
+    function warn(string memory message) internal pure {
+        console.log(string.concat("[WARN]: ", unicode"⚠️ ", message));
+    }
+
     function warn(string memory message, address arg) internal pure {
         console.log(string.concat("[WARN]: ", unicode"⚠️ ", message), arg);
     }
