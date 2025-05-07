@@ -16,6 +16,7 @@ library DeployIntrospection {
         _selectors[0] = IntrospectionFacet.supportsInterface.selector;
     }
 
+    /// @dev Use makeCut on DiamondHelper instead
     function makeCut(
         address facetAddress,
         IDiamond.FacetCutAction action

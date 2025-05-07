@@ -34,6 +34,22 @@ abstract contract DiamondHelper is IDiamond {
         addInit(initAddress, initData);
     }
 
+    function makeCut(
+        address facetAddress,
+        IDiamond.FacetCutAction action,
+        bytes4[] memory selectors
+    )
+        public
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors
+        });
+    }
+
     function getCuts() external view returns (FacetCut[] memory) {
         return _cuts;
     }
