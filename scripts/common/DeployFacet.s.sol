@@ -194,45 +194,17 @@ contract DeployFacet is DeployBase {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @notice Get the artifact path for a contract name with validation and caching
-    function getArtifactPath(string memory name) public returns (string memory) {
+    function getArtifactPath(string memory name) public returns (string memory path) {
         // check cache first
         string memory cachedPath = artifactPathCache[name];
         if (bytes(cachedPath).length > 0) return cachedPath;
 
-        // try the standard path first
-        string memory standardPath = string.concat(outDir(), "/", name, ".sol/", name, ".json");
-        if (vm.exists(standardPath)) {
-            artifactPathCache[name] = standardPath;
-            return standardPath;
-        }
+        // if not in cache, use LibDeploy.getArtifactPath and cache the result
+        path = LibDeploy.getArtifactPath(outDir(), name);
+        debug(string.concat("DeployFacet: Found artifact for ", name, " at ", path));
 
-        // if standard path doesn't exist, search all artifacts
-        // depth 2 for out/ContractDir/Contract.json
-        Vm.DirEntry[] memory entries = vm.readDir(outDir(), 2);
-        string memory jsonFileName = string.concat("/", name, ".json");
-
-        for (uint256 i; i < entries.length; ++i) {
-            Vm.DirEntry memory entry = entries[i];
-
-            // skip directories and files with errors
-            if (entry.isDir || bytes(entry.errorMessage).length > 0) continue;
-
-            // check if filename matches
-            if (entry.path.endsWith(jsonFileName)) {
-                debug(string.concat("DeployFacet: Found artifact for ", name, " at ", entry.path));
-                artifactPathCache[name] = entry.path;
-                return entry.path;
-            }
-        }
-
-        // no matching artifact found
-        revert(
-            string.concat(
-                "DeployFacet: Could not find artifact for '",
-                name,
-                "'. Ensure the contract exists and has been compiled."
-            )
-        );
+        // cache the result for future use
+        artifactPathCache[name] = path;
     }
 
     /// @notice Get the current deployment queue
