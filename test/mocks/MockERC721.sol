@@ -6,7 +6,7 @@ pragma solidity ^0.8.19;
 // libraries
 
 // contracts
-import {ERC721} from "src/facets/token/ERC721/ERC721.sol";
+import {ERC721} from "../../src/facets/token/ERC721/ERC721.sol";
 
 contract MockERC721 is ERC721 {
     constructor() {

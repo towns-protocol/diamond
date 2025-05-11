@@ -5,10 +5,10 @@ pragma solidity ^0.8.19;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 // libraries
-import {ERC20Storage} from "src/facets/token/ERC20/ERC20Storage.sol";
+import {ERC20Storage} from "../../src/facets/token/ERC20/ERC20Storage.sol";
 
 // contracts
-import {ERC20PermitBase} from "src/facets/token/ERC20/permit/ERC20PermitBase.sol";
+import {ERC20PermitBase} from "../../src/facets/token/ERC20/permit/ERC20PermitBase.sol";
 
 contract MockERC20 is ERC20PermitBase {
     function initialize(

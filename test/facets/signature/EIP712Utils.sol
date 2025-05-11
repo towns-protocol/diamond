@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+import {EIP712Facet} from "../../../src/utils/cryptography/EIP712Facet.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {Test} from "forge-std/Test.sol";
-import {EIP712Facet} from "src/utils/cryptography/EIP712Facet.sol";
 
 abstract contract EIP712Utils is Test {
     bytes32 private constant PERMIT_TYPEHASH = keccak256(

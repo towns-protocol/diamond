@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 //interfaces
-import {Diamond, IDiamond} from "src/Diamond.sol";
+import {Diamond, IDiamond} from "../../../src/Diamond.sol";
 
 //libraries
 import {DiamondHelper} from "../../common/helpers/DiamondHelper.s.sol";
