@@ -4,9 +4,10 @@ pragma solidity ^0.8.19;
 // interfaces
 
 // libraries
+
+import {ERC721Lib, MinimalERC721Storage} from "../../../primitive/ERC721.sol";
 import {ERC721Storage} from "./ERC721Storage.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-import {ERC721Lib, MinimalERC721Storage} from "src/primitive/ERC721.sol";
 
 // contracts
 import {Facet} from "../../Facet.sol";

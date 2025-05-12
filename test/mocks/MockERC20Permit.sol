@@ -6,7 +6,7 @@ pragma solidity ^0.8.19;
 // libraries
 
 // contracts
-import {ERC20PermitBase} from "src/facets/token/ERC20/permit/ERC20PermitBase.sol";
+import {ERC20PermitBase} from "../../src/facets/token/ERC20/permit/ERC20PermitBase.sol";
 
 contract MockERC20Permit is ERC20PermitBase {
     function mint(address to, uint256 amount) external {

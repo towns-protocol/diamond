@@ -6,9 +6,9 @@ pragma solidity ^0.8.19;
 // libraries
 
 // contracts
-import {IntrospectionBase} from "src/facets/introspection/IntrospectionBase.sol";
-import {OwnableBase} from "src/facets/ownable/OwnableBase.sol";
-import {ManagedProxyBase} from "src/proxy/managed/ManagedProxyBase.sol";
+import {IntrospectionBase} from "../../src/facets/introspection/IntrospectionBase.sol";
+import {OwnableBase} from "../../src/facets/ownable/OwnableBase.sol";
+import {ManagedProxyBase} from "../../src/proxy/managed/ManagedProxyBase.sol";
 
 /// @title MockProxyInstance
 /// @notice Simple instance of a managed proxy for testing purposes
