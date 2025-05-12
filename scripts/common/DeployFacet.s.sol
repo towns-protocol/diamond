@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 // interfaces
+import {Vm} from "forge-std/Vm.sol";
 
 // libraries
 import {LibDeploy} from "../../src/utils/LibDeploy.sol";
@@ -28,10 +29,13 @@ contract DeployFacet is DeployBase {
     /// @dev Cache for init code hashes to avoid recomputing
     mapping(string => bytes32) internal initCodeHashes;
 
+    string private artifactPath;
+
+    /// @dev Cache for artifact paths to avoid redundant lookups
+    mapping(string => string) private artifactPathCache;
+
     /// @notice Running total of estimated gas for deployment batch
     uint256 public batchGasEstimate;
-
-    string private artifactPath;
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                         DEPLOYMENT                         */
@@ -189,6 +193,20 @@ contract DeployFacet is DeployBase {
     /*                           GETTERS                          */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
+    /// @notice Get the artifact path for a contract name with validation and caching
+    function getArtifactPath(string memory name) public returns (string memory path) {
+        // check cache first
+        string memory cachedPath = artifactPathCache[name];
+        if (bytes(cachedPath).length > 0) return cachedPath;
+
+        // if not in cache, use LibDeploy.getArtifactPath and cache the result
+        path = LibDeploy.getArtifactPath(outDir(), name);
+        debug(string.concat("DeployFacet: Found artifact for ", name, " at ", path));
+
+        // cache the result for future use
+        artifactPathCache[name] = path;
+    }
+
     /// @notice Get the current deployment queue
     /// @return names Array of contract names in the queue
     /// @return salts Array of salts for each contract
@@ -204,7 +222,7 @@ contract DeployFacet is DeployBase {
     /// @notice Get the deployed address for a contract by name using default salt (0)
     /// @param name Name of the contract
     /// @return The deployed address of the contract (address(0) if not deployed)
-    function getDeployedAddress(string memory name) public view returns (address) {
+    function getDeployedAddress(string memory name) public returns (address) {
         return getDeployedAddress(name, bytes32(0));
     }
 
@@ -212,7 +230,7 @@ contract DeployFacet is DeployBase {
     /// @param name Name of the contract
     /// @param salt The salt used for deployment
     /// @return The deployed address of the contract (address(0) if not deployed)
-    function getDeployedAddress(string memory name, bytes32 salt) public view returns (address) {
+    function getDeployedAddress(string memory name, bytes32 salt) public returns (address) {
         address predictedAddress = predictAddress(name, salt);
 
         // check if the contract is actually deployed at this address
@@ -224,7 +242,7 @@ contract DeployFacet is DeployBase {
     /// @notice Predict the address where a contract would be deployed using default salt (0)
     /// @param name Name of the contract
     /// @return The predicted address where the contract would be deployed
-    function predictAddress(string memory name) public view returns (address) {
+    function predictAddress(string memory name) public returns (address) {
         return predictAddress(name, bytes32(0));
     }
 
@@ -232,7 +250,7 @@ contract DeployFacet is DeployBase {
     /// @param name Name of the contract
     /// @param salt The salt to use for deployment
     /// @return The predicted address where the contract would be deployed
-    function predictAddress(string memory name, bytes32 salt) public view returns (address) {
+    function predictAddress(string memory name, bytes32 salt) public returns (address) {
         bytes32 initCodeHash = initCodeHashes[name];
         // check if we have the init code hash cached
         if (initCodeHash == bytes32(0)) {
@@ -244,7 +262,7 @@ contract DeployFacet is DeployBase {
     /// @notice Check if a contract is deployed
     /// @param name Name of the contract
     /// @return True if deployed, false otherwise
-    function isDeployed(string memory name) public view returns (bool) {
+    function isDeployed(string memory name) public returns (bool) {
         return getDeployedAddress(name) != address(0);
     }
 
@@ -252,7 +270,7 @@ contract DeployFacet is DeployBase {
     /// @param name Name of the contract
     /// @param salt The salt used for deployment
     /// @return True if deployed, false otherwise
-    function isDeployed(string memory name, bytes32 salt) public view returns (bool) {
+    function isDeployed(string memory name, bytes32 salt) public returns (bool) {
         return getDeployedAddress(name, salt) != address(0);
     }
 
@@ -263,10 +281,6 @@ contract DeployFacet is DeployBase {
     /// @dev Wrapper function that captures artifactPath in its closure
     function _deployWrapper(address) internal returns (address) {
         return LibDeploy.deployCode(artifactPath, "");
-    }
-
-    function getArtifactPath(string memory name) internal pure returns (string memory) {
-        return string.concat(outDir(), "/", name, ".sol/", name, ".json");
     }
 
     /// @notice Estimate gas cost for deploying a contract
