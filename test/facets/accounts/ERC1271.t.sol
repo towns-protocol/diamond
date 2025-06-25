@@ -76,7 +76,8 @@ contract ERC1271Test is TestUtils {
         signerPrivateKey = 0x2;
         signer = vm.addr(signerPrivateKey);
 
-        accountDiamond = _deployDiamondWithBothFacets(ACCOUNT_DOMAIN_NAME, ACCOUNT_DOMAIN_VERSION, signer);
+        accountDiamond =
+            _deployDiamondWithBothFacets(ACCOUNT_DOMAIN_NAME, ACCOUNT_DOMAIN_VERSION, signer);
     }
 
     function test_erc1271_InitializeWithZeroAddress() public {
@@ -287,12 +288,8 @@ contract ERC1271Test is TestUtils {
 
         // Build TypedDataSign struct
         // TypedDataSign(bytes32 contents,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)
-        bytes32 typedDataSignTypeHash = keccak256(
-            abi.encodePacked(
-                TYPED_DATA_SIGN_TYPEHASH,
-                contentsType
-            )
-        );
+        bytes32 typedDataSignTypeHash =
+            keccak256(abi.encodePacked(TYPED_DATA_SIGN_TYPEHASH, contentsType));
 
         bytes32 typedDataSignStructHash = keccak256(
             abi.encode(
@@ -307,7 +304,8 @@ contract ERC1271Test is TestUtils {
         );
 
         // Create the final hash using account domain separator
-        bytes32 finalHash = MessageHashUtils.toTypedDataHash(accountDomainSeparator, typedDataSignStructHash);
+        bytes32 finalHash =
+            MessageHashUtils.toTypedDataHash(accountDomainSeparator, typedDataSignStructHash);
 
         // Sign the final hash
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, finalHash);
@@ -351,7 +349,8 @@ contract ERC1271Test is TestUtils {
         // Create PersonalSign hash (simplified approach)
         bytes32 personalSignHash = keccak256(abi.encode(PERSONAL_SIGN_TYPEHASH, appHash));
 
-        bytes32 finalHash = MessageHashUtils.toTypedDataHash(accountDomainSeparator, personalSignHash);
+        bytes32 finalHash =
+            MessageHashUtils.toTypedDataHash(accountDomainSeparator, personalSignHash);
 
         // Sign and return simple signature (PersonalSign workflow)
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(signerPrivateKey, finalHash);
