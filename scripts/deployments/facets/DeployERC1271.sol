@@ -33,7 +33,7 @@ library DeployERC1271 {
     }
 
     function makeInitData(address signer) internal pure returns (bytes memory) {
-        return abi.encodeWithSelector(bytes4(keccak256("__ERC1271_init(address)")), signer);
+        return abi.encodeWithSelector(ERC1271Facet.__ERC1271_init.selector, signer);
     }
 
     function deploy() internal returns (address) {
