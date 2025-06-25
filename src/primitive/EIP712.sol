@@ -89,6 +89,8 @@ library EIP712Lib {
     }
 
     /// @dev See {IERC-5267}.
+    /// Note: This function is kept for backward compatibility but is not used by the updated EIP712Facet
+    /// which now uses virtual functions to allow overrides.
     function eip712Domain(EIP712Storage storage self)
         internal
         view

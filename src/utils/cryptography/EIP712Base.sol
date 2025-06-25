@@ -61,7 +61,13 @@ abstract contract EIP712Base {
      * @dev Returns the domain separator for the current chain.
      */
     function _domainSeparatorV4() internal view virtual returns (bytes32) {
-        return _getEIP712Storage().domainSeparatorV4();
+        // Build domain separator using the virtual functions
+        // This allows overrides to work correctly
+        return keccak256(
+            abi.encode(
+                TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)
+            )
+        );
     }
 
     /**
@@ -80,7 +86,37 @@ abstract contract EIP712Base {
      * ```
      */
     function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
-        return _getEIP712Storage().hashTypedDataV4(structHash);
+        return EIP712Lib.toTypedDataHash(_domainSeparatorV4(), structHash);
+    }
+
+    /**
+     * @dev Returns the domain name and version.
+     * This function should be overridden by facets that want to use constant values
+     * instead of reading from storage for gas optimization.
+     *
+     * NOTE: If the returned result may change after deployment,
+     * you must override `_domainNameAndVersionMayChange()` to return true.
+     */
+    function _domainNameAndVersion()
+        internal
+        view
+        virtual
+        returns (string memory name, string memory version)
+    {
+        // Default implementation reads from storage
+        EIP712Storage storage $ = _getEIP712Storage();
+        name = $._EIP712Name();
+        version = $._EIP712Version();
+    }
+
+    /**
+     * @dev Returns if `_domainNameAndVersion()` may change after deployment.
+     * Default: false (values are fixed after initialization).
+     * Override to return true if your implementation allows name/version to change.
+     */
+    function _domainNameAndVersionMayChange() internal pure virtual returns (bool result) {
+        // By default, assume name and version are fixed after initialization
+        return false;
     }
 
     /**
@@ -90,7 +126,8 @@ abstract contract EIP712Base {
      * are a concern.
      */
     function _EIP712Name() internal view virtual returns (string memory) {
-        return _getEIP712Storage()._EIP712Name();
+        (string memory name,) = _domainNameAndVersion();
+        return name;
     }
 
     /**
@@ -100,7 +137,8 @@ abstract contract EIP712Base {
      * are a concern.
      */
     function _EIP712Version() internal view virtual returns (string memory) {
-        return _getEIP712Storage()._EIP712Version();
+        (, string memory version) = _domainNameAndVersion();
+        return version;
     }
 
     /**
@@ -110,7 +148,8 @@ abstract contract EIP712Base {
      * are a concern.
      */
     function _EIP712NameHash() internal view virtual returns (bytes32) {
-        return _getEIP712Storage()._EIP712NameHash();
+        string memory name = _EIP712Name();
+        return bytes(name).length > 0 ? keccak256(bytes(name)) : keccak256("");
     }
 
     /**
@@ -120,6 +159,7 @@ abstract contract EIP712Base {
      * are a concern.
      */
     function _EIP712VersionHash() internal view virtual returns (bytes32) {
-        return _getEIP712Storage()._EIP712VersionHash();
+        string memory version = _EIP712Version();
+        return bytes(version).length > 0 ? keccak256(bytes(version)) : keccak256("");
     }
 }
