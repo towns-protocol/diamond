@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 import {IERC1271} from "./IERC1271.sol";
 
 // libraries
+import {ERC1271} from "solady/accounts/ERC1271.sol";
 
 // contracts
 import {Facet} from "../Facet.sol";
@@ -55,12 +56,12 @@ contract ERC1271Facet is IERC1271, ERC1271Base, Facet {
         bytes32 hash,
         bytes calldata signature
     )
-        external
+        public
         view
-        override
+        override(ERC1271, IERC1271)
         returns (bytes4 magicValue)
     {
-        return _isValidSignature(hash, signature);
+        return isValidSignature(hash, signature);
     }
 
     /**

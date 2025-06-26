@@ -6,16 +6,16 @@ import {Test} from "forge-std/Test.sol";
 
 // Example facet that overrides domain name and version
 contract CustomEIP712Facet is EIP712Facet {
-    // Override to return constant values for gas optimization
-    function _domainNameAndVersion()
-        internal
-        pure
-        override
-        returns (string memory name, string memory version)
-    {
-        name = "CustomDomain";
-        version = "2.0";
-    }
+// Override to return constant values for gas optimization
+//    function _domainNameAndVersion()
+//        internal
+//        pure
+//        override
+//        returns (string memory name, string memory version)
+//    {
+//        name = "CustomDomain";
+//        version = "2.0";
+//    }
 }
 
 contract EIP712OverrideTest is Test {
