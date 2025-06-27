@@ -37,10 +37,7 @@ contract EIP712Test is TestUtils, EIP712Utils {
         address mockERC20PermitAddress = DeployMockERC20Permit.deploy();
 
         diamondHelper.addFacet(
-            DeployMockERC20Permit.makeCut(
-                mockERC20PermitAddress,
-                IDiamond.FacetCutAction.Add
-            ),
+            DeployMockERC20Permit.makeCut(mockERC20PermitAddress, IDiamond.FacetCutAction.Add),
             mockERC20PermitAddress,
             DeployMockERC20Permit.makeInitData(NAME, SYMBOL, 18)
         );
@@ -62,11 +59,7 @@ contract EIP712Test is TestUtils, EIP712Utils {
         assertEq(erc20.balanceOf(to), amount);
     }
 
-    function test_permit(
-        uint256 privateKey,
-        address spender,
-        uint256 amount
-    ) external {
+    function test_permit(uint256 privateKey, address spender, uint256 amount) external {
         privateKey = bound(privateKey, 1, 1000);
         amount = bound(amount, 1, 1000);
 
@@ -80,14 +73,8 @@ contract EIP712Test is TestUtils, EIP712Utils {
 
         erc20.mint(owner, amount);
 
-        (uint8 v, bytes32 r, bytes32 s) = signPermit(
-            privateKey,
-            address(erc20),
-            owner,
-            spender,
-            amount,
-            deadline
-        );
+        (uint8 v, bytes32 r, bytes32 s) =
+            signPermit(privateKey, address(erc20), owner, spender, amount, deadline);
 
         vm.prank(owner);
         erc20.permit(owner, spender, amount, deadline, v, r, s);
@@ -97,10 +84,7 @@ contract EIP712Test is TestUtils, EIP712Utils {
 
     function test_erc20_domainSeparator() external view {
         bytes32 domainSeparator = erc20.DOMAIN_SEPARATOR();
-        assertEq(
-            domainSeparator,
-            _buildDomainSeparator(NAME, VERSION, address(erc20))
-        );
+        assertEq(domainSeparator, _buildDomainSeparator(NAME, VERSION, address(erc20)));
     }
 
     function test_erc20_nonces() external view {
@@ -121,7 +105,6 @@ contract EIP712Test is TestUtils, EIP712Utils {
             uint256 chainId,
             address verifyingContract,
             ,
-
         ) = eip712.eip712Domain();
 
         assertEq(name, "MockEIP712");
@@ -133,11 +116,7 @@ contract EIP712Test is TestUtils, EIP712Utils {
 
     function test_eip712_domainSeparator_overridden() external view {
         bytes32 separator = eip712.DOMAIN_SEPARATOR();
-        bytes32 expectedSeparator = _buildDomainSeparator(
-            "MockEIP712",
-            "1.0",
-            address(eip712)
-        );
+        bytes32 expectedSeparator = _buildDomainSeparator("MockEIP712", "1.0", address(eip712));
         assertEq(separator, expectedSeparator);
     }
 
@@ -149,18 +128,21 @@ contract EIP712Test is TestUtils, EIP712Utils {
         string memory name,
         string memory version,
         address verifyingContract
-    ) internal view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    keccak256(
-                        "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-                    ),
-                    keccak256(bytes(name)),
-                    keccak256(bytes(version)),
-                    block.chainid,
-                    verifyingContract
-                )
-            );
+    )
+        internal
+        view
+        returns (bytes32)
+    {
+        return keccak256(
+            abi.encode(
+                keccak256(
+                    "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
+                ),
+                keccak256(bytes(name)),
+                keccak256(bytes(version)),
+                block.chainid,
+                verifyingContract
+            )
+        );
     }
 }

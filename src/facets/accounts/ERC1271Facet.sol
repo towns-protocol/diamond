@@ -64,7 +64,12 @@ contract ERC1271Facet is IERC1271, ERC1271Base, Facet {
     function isValidSignature(
         bytes32 hash,
         bytes calldata signature
-    ) external view override returns (bytes4 magicValue) {
+    )
+        external
+        view
+        override
+        returns (bytes4 magicValue)
+    {
         return _isValidSignature(hash, signature);
     }
 
@@ -79,12 +84,7 @@ contract ERC1271Facet is IERC1271, ERC1271Base, Facet {
     /// @dev Based on Solady's implementation: https://github.com/vectorized/solady/blob/main/src/accounts/ERC1271.sol
     /// @dev Returns bytes4(0xd620c85a) to indicate support for the default nested EIP-712 behavior
     /// @dev This enables automatic detection by wallet clients and dApps
-    function supportsNestedTypedDataSign()
-        public
-        view
-        virtual
-        returns (bytes32 result)
-    {
+    function supportsNestedTypedDataSign() public view virtual returns (bytes32 result) {
         result = bytes4(0xd620c85a);
     }
 }

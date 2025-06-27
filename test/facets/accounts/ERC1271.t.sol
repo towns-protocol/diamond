@@ -5,17 +5,19 @@ pragma solidity ^0.8.23;
 import {TestUtils} from "test/TestUtils.sol";
 
 // interfaces
-import {IDiamond} from "src/Diamond.sol";
+
 import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 import {IERC5267} from "@openzeppelin/contracts/interfaces/IERC5267.sol";
+import {IDiamond} from "src/Diamond.sol";
 
 // libraries
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 // contracts
 import {DeployDiamond} from "scripts/deployments/diamonds/DeployDiamond.s.sol";
-import {DeployERC1271Facet} from "scripts/deployments/facets/DeployERC1271Facet.sol";
+
 import {DeployEIP712Facet} from "scripts/deployments/facets/DeployEIP712Facet.sol";
+import {DeployERC1271Facet} from "scripts/deployments/facets/DeployERC1271Facet.sol";
 import {ERC1271Facet} from "src/facets/accounts/ERC1271Facet.sol";
 import {EIP712Facet} from "src/utils/cryptography/EIP712Facet.sol";
 import {MockERC1271Signer} from "test/mocks/MockERC1271Signer.sol";
@@ -34,8 +36,7 @@ contract ERC1271Test is TestUtils {
     bytes4 private constant INVALID_VALUE = 0xffffffff;
 
     // EIP712 Type Hashes
-    bytes32 private constant PERSONAL_SIGN_TYPEHASH =
-        keccak256("PersonalSign(bytes prefixed)");
+    bytes32 private constant PERSONAL_SIGN_TYPEHASH = keccak256("PersonalSign(bytes prefixed)");
 
     // Default Test Values
     string private constant DEFAULT_DOMAIN_NAME = "Diamonds";
@@ -66,11 +67,7 @@ contract ERC1271Test is TestUtils {
     modifier givenDiamondIsDeployed() {
         signerPrivateKey = boundPrivateKey(_randomUint256());
         signer = vm.addr(signerPrivateKey);
-        diamond = _createDiamond(
-            DEFAULT_DOMAIN_NAME,
-            DEFAULT_DOMAIN_VERSION,
-            signer
-        );
+        diamond = _createDiamond(DEFAULT_DOMAIN_NAME, DEFAULT_DOMAIN_VERSION, signer);
         erc1271 = ERC1271Facet(diamond);
         eip712 = EIP712Facet(diamond);
         _;
@@ -89,58 +86,28 @@ contract ERC1271Test is TestUtils {
         assertEq(ERC1271Facet(zeroDiamond).erc1271Signer(), zeroDiamond);
     }
 
-    function test_erc1271_rejectInvalidSignature()
-        external
-        givenDiamondIsDeployed
-    {
+    function test_erc1271_rejectInvalidSignature() external givenDiamondIsDeployed {
         bytes32 messageHash = _createMessageHash(DEFAULT_TEST_MESSAGE);
-        bytes memory rawSignature = _createRawSignature(
-            signerPrivateKey,
-            messageHash
-        );
+        bytes memory rawSignature = _createRawSignature(signerPrivateKey, messageHash);
 
-        _assertInvalidSignatureForValidator(
-            messageHash,
-            rawSignature,
-            address(eip712)
-        );
+        _assertInvalidSignatureForValidator(messageHash, rawSignature, address(eip712));
     }
 
-    function test_erc1271_validatePersonalSignature()
-        external
-        givenDiamondIsDeployed
-    {
+    function test_erc1271_validatePersonalSignature() external givenDiamondIsDeployed {
         bytes32 messageHash = _createMessageHash(DEFAULT_TEST_MESSAGE);
-        bytes memory signature = _createPersonalSignature(
-            signerPrivateKey,
-            messageHash,
-            address(eip712)
-        );
+        bytes memory signature =
+            _createPersonalSignature(signerPrivateKey, messageHash, address(eip712));
 
-        _assertValidSignatureForValidator(
-            messageHash,
-            signature,
-            address(eip712)
-        );
+        _assertValidSignatureForValidator(messageHash, signature, address(eip712));
     }
 
-    function test_erc1271_rejectInvalidPersonalSignature()
-        external
-        givenDiamondIsDeployed
-    {
+    function test_erc1271_rejectInvalidPersonalSignature() external givenDiamondIsDeployed {
         bytes32 messageHash = _createMessageHash(DEFAULT_TEST_MESSAGE);
         uint256 wrongPrivateKey = _createWrongPrivateKey();
-        bytes memory signature = _createPersonalSignature(
-            wrongPrivateKey,
-            messageHash,
-            address(eip712)
-        );
+        bytes memory signature =
+            _createPersonalSignature(wrongPrivateKey, messageHash, address(eip712));
 
-        _assertInvalidSignatureForValidator(
-            messageHash,
-            signature,
-            address(eip712)
-        );
+        _assertInvalidSignatureForValidator(messageHash, signature, address(eip712));
     }
 
     function test_erc1271_validateContractSignerSignature() external {
@@ -156,10 +123,7 @@ contract ERC1271Test is TestUtils {
             validator // validator is the diamond that contains the mock signer
         );
 
-        assertEq(
-            IERC1271(validator).isValidSignature(messageHash, signature),
-            MAGIC_VALUE
-        );
+        assertEq(IERC1271(validator).isValidSignature(messageHash, signature), MAGIC_VALUE);
     }
 
     function test_erc1271_validateMailSignature() external {
@@ -169,27 +133,14 @@ contract ERC1271Test is TestUtils {
         uint256 pvk = boundPrivateKey(_randomUint256());
         address pk = vm.addr(pvk);
 
-        address validator = _createDiamond(
-            DEFAULT_DOMAIN_NAME,
-            DEFAULT_DOMAIN_VERSION,
-            pk
-        );
+        address validator = _createDiamond(DEFAULT_DOMAIN_NAME, DEFAULT_DOMAIN_VERSION, pk);
 
         bytes32 dataHash = app.getDataHash(mail);
-        bytes memory signature = _createPersonalSignature(
-            pvk,
-            dataHash,
-            validator
-        );
+        bytes memory signature = _createPersonalSignature(pvk, dataHash, validator);
 
-        assertEq(
-            IERC1271(validator).isValidSignature(dataHash, signature),
-            MAGIC_VALUE
-        );
+        assertEq(IERC1271(validator).isValidSignature(dataHash, signature), MAGIC_VALUE);
 
-        assertTrue(
-            app.validateSignature(signature, app.getStructHash(mail), validator)
-        );
+        assertTrue(app.validateSignature(signature, app.getStructHash(mail), validator));
     }
 
     function test_erc1271_validateNestedTypedDataSignWithMailApp() external {
@@ -199,24 +150,14 @@ contract ERC1271Test is TestUtils {
         uint256 pvk = boundPrivateKey(_randomUint256());
         address pk = vm.addr(pvk);
 
-        address validator = _createDiamond(
-            DEFAULT_DOMAIN_NAME,
-            DEFAULT_DOMAIN_VERSION,
-            pk
-        );
+        address validator = _createDiamond(DEFAULT_DOMAIN_NAME, DEFAULT_DOMAIN_VERSION, pk);
 
         bytes32 dataHash = app.getDataHash(mail);
-        TypedDataContext memory ctx = _createTypedDataContextWithMailApp(
-            dataHash,
-            validator
-        );
+        TypedDataContext memory ctx = _createTypedDataContextWithMailApp(dataHash, validator);
 
         bytes memory signature = _createTypedDataSignature(ctx, pvk, validator);
 
-        bytes32 contentHash = MessageHashUtils.toTypedDataHash(
-            ctx.domainSeparator,
-            ctx.contents
-        );
+        bytes32 contentHash = MessageHashUtils.toTypedDataHash(ctx.domainSeparator, ctx.contents);
 
         // Validate the signature against the contentHash directly
         _assertValidSignatureForValidator(contentHash, signature, validator);
@@ -228,18 +169,11 @@ contract ERC1271Test is TestUtils {
         uint256 pvk = boundPrivateKey(_randomUint256());
         address pk = vm.addr(pvk);
 
-        address validator = _createDiamond(
-            DEFAULT_DOMAIN_NAME,
-            DEFAULT_DOMAIN_VERSION,
-            pk
-        );
+        address validator = _createDiamond(DEFAULT_DOMAIN_NAME, DEFAULT_DOMAIN_VERSION, pk);
 
         TypedDataContext memory ctx = _createTypedDataContext(validator);
         bytes memory signature = _createTypedDataSignature(ctx, pvk, validator);
-        bytes32 contentHash = MessageHashUtils.toTypedDataHash(
-            ctx.domainSeparator,
-            ctx.contents
-        );
+        bytes32 contentHash = MessageHashUtils.toTypedDataHash(ctx.domainSeparator, ctx.contents);
 
         _assertValidSignatureForValidator(contentHash, signature, validator);
     }
@@ -259,46 +193,37 @@ contract ERC1271Test is TestUtils {
     function _createTypedDataContextWithMailApp(
         bytes32 dataHash,
         address validator
-    ) private view returns (TypedDataContext memory ctx) {
+    )
+        private
+        view
+        returns (TypedDataContext memory ctx)
+    {
         ctx.contentsType = "Mail(address to,string contents)";
         ctx.contentsName = "Mail";
         ctx.contents = dataHash;
         ctx.domainSeparator = EIP712Facet(validator).DOMAIN_SEPARATOR();
-        ctx.contentsDescription = abi.encodePacked(
-            ctx.contentsType,
-            ctx.contentsName
-        );
+        ctx.contentsDescription = abi.encodePacked(ctx.contentsType, ctx.contentsName);
     }
 
-    function _createTypedDataContext(
-        address validator
-    ) private view returns (TypedDataContext memory ctx) {
+    function _createTypedDataContext(address validator)
+        private
+        view
+        returns (TypedDataContext memory ctx)
+    {
         ctx.contentsType = "Contents(bytes32 stuff)";
         ctx.contentsName = "Contents";
-        ctx.contents = keccak256(
-            abi.encode(_randomUint256(), ctx.contentsType)
-        );
+        ctx.contents = keccak256(abi.encode(_randomUint256(), ctx.contentsType));
         ctx.domainSeparator = EIP712Facet(validator).DOMAIN_SEPARATOR();
-        ctx.contentsDescription = abi.encodePacked(
-            ctx.contentsType,
-            ctx.contentsName
-        );
+        ctx.contentsDescription = abi.encodePacked(ctx.contentsType, ctx.contentsName);
     }
 
     function _createTestMail() private pure returns (MockMailApp.Mail memory) {
         return MockMailApp.Mail({to: address(0x123), contents: "Hello, Mail!"});
     }
 
-    function _createWrongPrivateKey()
-        private
-        view
-        returns (uint256 wrongPrivateKey)
-    {
+    function _createWrongPrivateKey() private view returns (uint256 wrongPrivateKey) {
         wrongPrivateKey = boundPrivateKey(_randomUint256());
-        require(
-            wrongPrivateKey != signerPrivateKey,
-            "Wrong key matches signer key"
-        );
+        require(wrongPrivateKey != signerPrivateKey, "Wrong key matches signer key");
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -309,31 +234,29 @@ contract ERC1271Test is TestUtils {
         bytes32 messageHash,
         bytes memory signature,
         address validator
-    ) private view {
-        assertEq(
-            IERC1271(validator).isValidSignature(messageHash, signature),
-            INVALID_VALUE
-        );
+    )
+        private
+        view
+    {
+        assertEq(IERC1271(validator).isValidSignature(messageHash, signature), INVALID_VALUE);
     }
 
     function _assertValidSignatureForValidator(
         bytes32 messageHash,
         bytes memory signature,
         address validator
-    ) private view {
-        assertEq(
-            IERC1271(validator).isValidSignature(messageHash, signature),
-            MAGIC_VALUE
-        );
+    )
+        private
+        view
+    {
+        assertEq(IERC1271(validator).isValidSignature(messageHash, signature), MAGIC_VALUE);
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                   MESSAGE HELPERS                         */
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
-    function _createMessageHash(
-        string memory message
-    ) private pure returns (bytes32) {
+    function _createMessageHash(string memory message) private pure returns (bytes32) {
         return keccak256(bytes(message));
     }
 
@@ -344,7 +267,11 @@ contract ERC1271Test is TestUtils {
     function _createRawSignature(
         uint256 privateKey,
         bytes32 messageHash
-    ) private pure returns (bytes memory) {
+    )
+        private
+        pure
+        returns (bytes memory)
+    {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, messageHash);
         return abi.encodePacked(r, s, v);
     }
@@ -353,14 +280,14 @@ contract ERC1271Test is TestUtils {
         uint256 privateKey,
         bytes32 messageHash,
         address validator
-    ) private view returns (bytes memory) {
-        bytes32 structHash = keccak256(
-            abi.encode(PERSONAL_SIGN_TYPEHASH, messageHash)
-        );
+    )
+        private
+        view
+        returns (bytes memory)
+    {
+        bytes32 structHash = keccak256(abi.encode(PERSONAL_SIGN_TYPEHASH, messageHash));
         bytes32 domainSeparator = EIP712Facet(validator).DOMAIN_SEPARATOR();
-        bytes32 finalHash = keccak256(
-            abi.encodePacked("\x19\x01", domainSeparator, structHash)
-        );
+        bytes32 finalHash = keccak256(abi.encodePacked("\x19\x01", domainSeparator, structHash));
 
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, finalHash);
         return abi.encodePacked(r, s, v);
@@ -370,25 +297,24 @@ contract ERC1271Test is TestUtils {
         TypedDataContext memory ctx,
         uint256 privateKey,
         address validator
-    ) private view returns (bytes memory) {
-        bytes32 erc1271Hash = _createERC1271Hash(
-            validator,
-            ctx.contents,
-            ctx.contentsType,
-            ctx.contentsName
-        );
+    )
+        private
+        view
+        returns (bytes memory)
+    {
+        bytes32 erc1271Hash =
+            _createERC1271Hash(validator, ctx.contents, ctx.contentsType, ctx.contentsName);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, erc1271Hash);
 
-        return
-            abi.encodePacked(
-                r,
-                s,
-                v,
-                ctx.domainSeparator,
-                ctx.contents,
-                ctx.contentsDescription,
-                uint16(ctx.contentsDescription.length)
-            );
+        return abi.encodePacked(
+            r,
+            s,
+            v,
+            ctx.domainSeparator,
+            ctx.contents,
+            ctx.contentsDescription,
+            uint16(ctx.contentsDescription.length)
+        );
     }
 
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
@@ -399,7 +325,10 @@ contract ERC1271Test is TestUtils {
         string memory domainName,
         string memory domainVersion,
         address erc1271Signer
-    ) private returns (address) {
+    )
+        private
+        returns (address)
+    {
         DeployDiamond helper = new DeployDiamond();
 
         address erc1271Facet = DeployERC1271Facet.deploy();
@@ -416,12 +345,11 @@ contract ERC1271Test is TestUtils {
         address facetAddress,
         string memory name,
         string memory version
-    ) private {
+    )
+        private
+    {
         helper.addFacet(
-            DeployEIP712Facet.makeCut(
-                facetAddress,
-                IDiamond.FacetCutAction.Add
-            ),
+            DeployEIP712Facet.makeCut(facetAddress, IDiamond.FacetCutAction.Add),
             facetAddress,
             DeployEIP712Facet.makeInitData(name, version)
         );
@@ -431,12 +359,11 @@ contract ERC1271Test is TestUtils {
         DeployDiamond helper,
         address facetAddress,
         address signerAddress
-    ) private {
+    )
+        private
+    {
         helper.addFacet(
-            DeployERC1271Facet.makeCut(
-                facetAddress,
-                IDiamond.FacetCutAction.Add
-            ),
+            DeployERC1271Facet.makeCut(facetAddress, IDiamond.FacetCutAction.Add),
             facetAddress,
             DeployERC1271Facet.makeInitData(signerAddress)
         );
@@ -451,7 +378,11 @@ contract ERC1271Test is TestUtils {
         bytes32 contents,
         bytes memory contentsType,
         bytes memory contentsName
-    ) private view returns (bytes32) {
+    )
+        private
+        view
+        returns (bytes32)
+    {
         (
             ,
             string memory name,
@@ -459,7 +390,6 @@ contract ERC1271Test is TestUtils {
             uint256 chainId,
             address verifyingContract,
             bytes32 salt,
-
         ) = EIP712Facet(validator).eip712Domain();
 
         bytes32 typedDataSignStructHash = keccak256(
@@ -474,28 +404,28 @@ contract ERC1271Test is TestUtils {
             )
         );
 
-        return
-            keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    EIP712Facet(validator).DOMAIN_SEPARATOR(),
-                    typedDataSignStructHash
-                )
-            );
+        return keccak256(
+            abi.encodePacked(
+                "\x19\x01", EIP712Facet(validator).DOMAIN_SEPARATOR(), typedDataSignStructHash
+            )
+        );
     }
 
     function _createTypedDataSignTypeHash(
         bytes memory contentsType,
         bytes memory contentsName
-    ) private pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encodePacked(
-                    "TypedDataSign(",
-                    contentsName,
-                    " contents,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)",
-                    contentsType
-                )
-            );
+    )
+        private
+        pure
+        returns (bytes32)
+    {
+        return keccak256(
+            abi.encodePacked(
+                "TypedDataSign(",
+                contentsName,
+                " contents,string name,string version,uint256 chainId,address verifyingContract,bytes32 salt)",
+                contentsType
+            )
+        );
     }
 }

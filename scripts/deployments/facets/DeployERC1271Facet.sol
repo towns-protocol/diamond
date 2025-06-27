@@ -21,21 +21,20 @@ library DeployERC1271Facet {
     function makeCut(
         address facetAddress,
         IDiamond.FacetCutAction action
-    ) internal pure returns (IDiamond.FacetCut memory) {
-        return
-            IDiamond.FacetCut({
-                action: action,
-                facetAddress: facetAddress,
-                functionSelectors: selectors()
-            });
+    )
+        internal
+        pure
+        returns (IDiamond.FacetCut memory)
+    {
+        return IDiamond.FacetCut({
+            action: action,
+            facetAddress: facetAddress,
+            functionSelectors: selectors()
+        });
     }
 
     function makeInitData(address signer) internal pure returns (bytes memory) {
-        return
-            abi.encodeWithSelector(
-                ERC1271Facet.__ERC1271_init.selector,
-                signer
-            );
+        return abi.encodeWithSelector(ERC1271Facet.__ERC1271_init.selector, signer);
     }
 
     function deploy() internal returns (address) {

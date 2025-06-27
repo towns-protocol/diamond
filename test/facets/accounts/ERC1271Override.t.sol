@@ -7,9 +7,7 @@ pragma solidity ^0.8.23;
 
 // contracts
 
-contract ERC1271OverrideTest {
-
-}
+contract ERC1271OverrideTest {}
 
 // import {ERC1271Facet} from "../../../src/facets/accounts/ERC1271Facet.sol";
 // import {IERC1271} from "../../../src/facets/accounts/IERC1271.sol";

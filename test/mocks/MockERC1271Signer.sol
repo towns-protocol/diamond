@@ -20,7 +20,12 @@ contract MockERC1271Signer is IERC1271 {
     function isValidSignature(
         bytes32 hash,
         bytes calldata signature
-    ) external view override returns (bytes4 magicValue) {
+    )
+        external
+        view
+        override
+        returns (bytes4 magicValue)
+    {
         // For testing purposes, accept any signature that recovers to the expected signer
         // This handles the case where the main diamond transforms the hash via nested EIP-712
         address recovered = ECDSA.recover(hash, signature);

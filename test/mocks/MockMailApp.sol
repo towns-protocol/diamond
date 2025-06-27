@@ -16,8 +16,7 @@ import {console} from "forge-std/console.sol";
 
 // Simple MockMailApp following the pattern from Towns protocol
 contract MockMailApp is EIP712 {
-    bytes32 public constant MAIL_TYPEHASH =
-        keccak256("Mail(address to,string contents)");
+    bytes32 public constant MAIL_TYPEHASH = keccak256("Mail(address to,string contents)");
 
     struct Mail {
         address to;
@@ -39,14 +38,7 @@ contract MockMailApp is EIP712 {
     }
 
     function getStructHash(Mail memory mail) public pure returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    MAIL_TYPEHASH,
-                    mail.to,
-                    keccak256(bytes(mail.contents))
-                )
-            );
+        return keccak256(abi.encode(MAIL_TYPEHASH, mail.to, keccak256(bytes(mail.contents))));
     }
 
     function getDataHash(Mail memory mail) public view returns (bytes32) {
@@ -57,11 +49,12 @@ contract MockMailApp is EIP712 {
         bytes calldata signature,
         bytes32 hash,
         address claimedSigner
-    ) internal view returns (bool) {
-        bytes4 magicValue = IERC1271(claimedSigner).isValidSignature(
-            hash,
-            signature
-        );
+    )
+        internal
+        view
+        returns (bool)
+    {
+        bytes4 magicValue = IERC1271(claimedSigner).isValidSignature(hash, signature);
 
         return magicValue == 0x1626ba7e;
     }
@@ -70,7 +63,11 @@ contract MockMailApp is EIP712 {
         bytes calldata signature,
         bytes32 dataHash,
         address owner
-    ) external view returns (bool) {
+    )
+        external
+        view
+        returns (bool)
+    {
         // Try to extract the nested signature data (last 2 bytes should contain length)
         bool isNestedSignature;
         /// @solidity memory-safe-assembly
@@ -79,17 +76,9 @@ contract MockMailApp is EIP712 {
             // which should contain the contentsDescription length
             if gt(signature.length, 0x42) {
                 // 0x42 = minimum length for nested format
-                let c := shr(
-                    240,
-                    calldataload(
-                        add(signature.offset, sub(signature.length, 2))
-                    )
-                )
+                let c := shr(240, calldataload(add(signature.offset, sub(signature.length, 2))))
                 // Verify the signature has valid nested format
-                isNestedSignature := and(
-                    gt(signature.length, add(0x42, c)),
-                    gt(c, 0)
-                )
+                isNestedSignature := and(gt(signature.length, add(0x42, c)), gt(c, 0))
             }
         }
 

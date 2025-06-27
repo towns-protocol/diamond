@@ -51,21 +51,24 @@ abstract contract ERC1271Base is EIP712Base {
     function _erc1271IsValidSignatureNowCalldata(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual returns (bool) {
-        return
-            SignatureCheckerLib.isValidSignatureNowCalldata(
-                _erc1271Signer(),
-                hash,
-                signature
-            );
+    )
+        internal
+        view
+        virtual
+        returns (bool)
+    {
+        return SignatureCheckerLib.isValidSignatureNowCalldata(_erc1271Signer(), hash, signature);
     }
 
     /**
      * @dev Unwraps and returns the signature.
      */
-    function _erc1271UnwrapSignature(
-        bytes calldata signature
-    ) internal view virtual returns (bytes calldata result) {
+    function _erc1271UnwrapSignature(bytes calldata signature)
+        internal
+        view
+        virtual
+        returns (bytes calldata result)
+    {
         result = signature;
         /// @solidity memory-safe-assembly
         assembly {
@@ -75,10 +78,7 @@ abstract contract ERC1271Base is EIP712Base {
                 calldataload(add(result.offset, sub(result.length, 0x20))),
                 mul(0x6492, div(not(shr(address(), address())), 0xffff)) // `0x6492...6492`.
             ) {
-                let o := add(
-                    result.offset,
-                    calldataload(add(result.offset, 0x40))
-                )
+                let o := add(result.offset, calldataload(add(result.offset, 0x40)))
                 result.length := calldataload(o)
                 result.offset := add(o, 0x20)
             }
@@ -92,7 +92,12 @@ abstract contract ERC1271Base is EIP712Base {
     function _isValidSignature(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual returns (bytes4 result) {
+    )
+        internal
+        view
+        virtual
+        returns (bytes4 result)
+    {
         // For automatic detection that the smart account supports the nested EIP-712 workflow,
         // See: https://eips.ethereum.org/EIPS/eip-7739.
         // If `hash` is `0x7739...7739`, returns `bytes4(0x77390001)`.
@@ -100,14 +105,12 @@ abstract contract ERC1271Base is EIP712Base {
         unchecked {
             if (signature.length == uint256(0)) {
                 // Forces the compiler to optimize for smaller bytecode size.
-                if (uint256(hash) == (~signature.length / 0xffff) * 0x7739)
+                if (uint256(hash) == (~signature.length / 0xffff) * 0x7739) {
                     return 0x77390001;
+                }
             }
         }
-        bool success = _erc1271IsValidSignatureInternal(
-            hash,
-            _erc1271UnwrapSignature(signature)
-        );
+        bool success = _erc1271IsValidSignatureInternal(hash, _erc1271UnwrapSignature(signature));
         /// @solidity memory-safe-assembly
         assembly {
             // `success ? bytes4(keccak256("isValidSignature(bytes32,bytes)")) : 0xffffffff`.
@@ -122,11 +125,15 @@ abstract contract ERC1271Base is EIP712Base {
     function _erc1271IsValidSignatureInternal(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual returns (bool) {
-        return
-            _erc1271IsValidSignatureViaSafeCaller(hash, signature) ||
-            _erc1271IsValidSignatureViaNestedEIP712(hash, signature) ||
-            _erc1271IsValidSignatureViaRPC(hash, signature);
+    )
+        internal
+        view
+        virtual
+        returns (bool)
+    {
+        return _erc1271IsValidSignatureViaSafeCaller(hash, signature)
+            || _erc1271IsValidSignatureViaNestedEIP712(hash, signature)
+            || _erc1271IsValidSignatureViaRPC(hash, signature);
     }
 
     /**
@@ -136,9 +143,15 @@ abstract contract ERC1271Base is EIP712Base {
     function _erc1271IsValidSignatureViaSafeCaller(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual returns (bool result) {
-        if (_erc1271CallerIsSafe())
+    )
+        internal
+        view
+        virtual
+        returns (bool result)
+    {
+        if (_erc1271CallerIsSafe()) {
             result = _erc1271IsValidSignatureNowCalldata(hash, signature);
+        }
     }
 
     /**
@@ -154,7 +167,12 @@ abstract contract ERC1271Base is EIP712Base {
     function _erc1271IsValidSignatureViaNestedEIP712(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual returns (bool result) {
+    )
+        internal
+        view
+        virtual
+        returns (bool result)
+    {
         uint256 t = uint256(uint160(address(this)));
         // Forces the compiler to pop the variables after the scope, avoiding stack-too-deep.
         if (t != uint256(0)) {
@@ -171,10 +189,7 @@ abstract contract ERC1271Base is EIP712Base {
                 t := mload(0x40) // Grab the free memory pointer.
                 // Skip 2 words for the `typedDataSignTypehash` and `contents` struct hash.
                 mstore(add(t, 0x40), keccak256(add(name, 0x20), mload(name)))
-                mstore(
-                    add(t, 0x60),
-                    keccak256(add(version, 0x20), mload(version))
-                )
+                mstore(add(t, 0x60), keccak256(add(version, 0x20), mload(version)))
                 mstore(add(t, 0x80), chainId)
                 mstore(add(t, 0xa0), shr(96, shl(96, verifyingContract)))
                 mstore(add(t, 0xc0), salt)
@@ -185,15 +200,8 @@ abstract contract ERC1271Base is EIP712Base {
         assembly {
             let m := mload(0x40) // Cache the free memory pointer.
             // `c` is `contentsDescription.length`, which is stored in the last 2 bytes of the signature.
-            let c := shr(
-                240,
-                calldataload(add(signature.offset, sub(signature.length, 2)))
-            )
-            for {
-
-            } 1 {
-
-            } {
+            let c := shr(240, calldataload(add(signature.offset, sub(signature.length, 2))))
+            for {} 1 {} {
                 let l := add(0x42, c) // Total length of appended data (32 + 32 + c + 2).
                 let o := add(signature.offset, sub(signature.length, l)) // Offset of appended data.
                 mstore(0x00, 0x1901) // Store the "\x19\x01" prefix.
@@ -201,10 +209,7 @@ abstract contract ERC1271Base is EIP712Base {
                 // Use the `PersonalSign` workflow if the reconstructed hash doesn't match,
                 // or if the appended data is invalid, i.e.
                 // `appendedData.length > signature.length || contentsDescription.length == 0`.
-                if or(
-                    xor(keccak256(0x1e, 0x42), hash),
-                    or(lt(signature.length, l), iszero(c))
-                ) {
+                if or(xor(keccak256(0x1e, 0x42), hash), or(lt(signature.length, l), iszero(c))) {
                     t := 0 // Set `t` to 0, denoting that we need to `hash = _hashTypedData(hash)`.
                     mstore(t, _PERSONAL_SIGN_TYPEHASH)
                     mstore(0x20, hash) // Store the `prefixed`.
@@ -219,33 +224,18 @@ abstract contract ERC1271Base is EIP712Base {
                 mstore(add(p, c), 40) // Store a '(' after the end.
                 if iszero(eq(byte(0, mload(sub(add(p, c), 1))), 41)) {
                     let e := 0 // Length of `contentsName` in explicit mode.
-                    for {
-                        let q := sub(add(p, c), 1)
-                    } 1 {
-
-                    } {
+                    for { let q := sub(add(p, c), 1) } 1 {} {
                         e := add(e, 1) // Scan backwards until we encounter a ')'.
-                        if iszero(
-                            gt(lt(e, c), eq(byte(0, mload(sub(q, e))), 41))
-                        ) {
-                            break
-                        }
+                        if iszero(gt(lt(e, c), eq(byte(0, mload(sub(q, e))), 41))) { break }
                     }
                     c := sub(c, e) // Truncate `contentsDescription` to `contentsType`.
                     calldatacopy(p, add(add(o, 0x40), c), e) // Copy `contentsName`.
                     mstore8(add(p, e), 40) // Store a '(' exactly right after the end.
                 }
                 // `d & 1 == 1` means that `contentsName` is invalid.
-                let d := shr(
-                    byte(0, mload(p)),
-                    0x7fffffe000000000000010000000000
-                ) // Starts with `[a-z(]`.
+                let d := shr(byte(0, mload(p)), 0x7fffffe000000000000010000000000) // Starts with `[a-z(]`.
                 // Advance `p` until we encounter '('.
-                for {
-
-                } iszero(eq(byte(0, mload(p)), 40)) {
-                    p := add(p, 1)
-                } {
+                for {} iszero(eq(byte(0, mload(p)), 40)) { p := add(p, 1) } {
                     d := or(shr(byte(0, mload(p)), 0x120100000001), d) // Has a byte in ", )\x00".
                 }
                 mstore(p, " contents,string name,string") // Store the rest of the encoding.
@@ -278,7 +268,12 @@ abstract contract ERC1271Base is EIP712Base {
     function _erc1271IsValidSignatureViaRPC(
         bytes32 hash,
         bytes calldata signature
-    ) internal view virtual returns (bool result) {
+    )
+        internal
+        view
+        virtual
+        returns (bool result)
+    {
         // Non-zero gasprice is a heuristic to check if a call is on-chain,
         // but we can't fully depend on it because it can be manipulated.
         // See: https://x.com/NoahCitron/status/1580359718341484544
@@ -292,16 +287,7 @@ abstract contract ERC1271Base is EIP712Base {
                 // Check if the basefee contract exists before calling it
                 let codeSize := extcodesize(b)
                 if codeSize {
-                    pop(
-                        staticcall(
-                            0xffff,
-                            b,
-                            codesize(),
-                            gasprice(),
-                            gasprice(),
-                            0x20
-                        )
-                    )
+                    pop(staticcall(0xffff, b, codesize(), gasprice(), gasprice(), 0x20))
                     // If `gasprice < basefee`, the call cannot be on-chain, and we can skip the gas burn.
                     if iszero(mload(gasprice())) {
                         let m := mload(0x40) // Cache the free memory pointer.
@@ -310,23 +296,12 @@ abstract contract ERC1271Base is EIP712Base {
                         mstore(0x40, 0x40)
                         let gasToBurn := or(add(0xffff, gaslimit()), gaslimit())
                         // Burns gas computationally efficiently. Also, requires that `gas > gasToBurn`.
-                        if or(eq(hash, b), lt(gas(), gasToBurn)) {
-                            invalid()
-                        }
+                        if or(eq(hash, b), lt(gas(), gasToBurn)) { invalid() }
                         // Make a call to this with `b`, efficiently burning the gas provided.
                         // No valid transaction can consume more than the gaslimit.
                         // See: https://ethereum.github.io/yellowpaper/paper.pdf
                         // Most RPCs perform calls with a gas budget greater than the gaslimit.
-                        pop(
-                            staticcall(
-                                gasToBurn,
-                                address(),
-                                0x1c,
-                                0x64,
-                                gasprice(),
-                                gasprice()
-                            )
-                        )
+                        pop(staticcall(gasToBurn, address(), 0x1c, 0x64, gasprice(), gasprice()))
                         mstore(0x40, m) // Restore the free memory pointer.
                     }
                 }
