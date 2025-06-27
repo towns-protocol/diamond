@@ -62,6 +62,18 @@ contract EIP712Facet is IERC5267, EIP712Base, Nonces, Facet {
             uint256[] memory extensions
         )
     {
-        return _getEIP712Storage().eip712Domain();
+        // Use the virtual functions to get name and version
+        // This allows facets to override and provide constant values
+        (name, version) = _domainNameAndVersion();
+
+        return (
+            hex"0f", // 01111 - indicates name, version, chainId, and verifyingContract are present
+            name,
+            version,
+            block.chainid,
+            address(this),
+            bytes32(0),
+            new uint256[](0)
+        );
     }
 }

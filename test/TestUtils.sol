@@ -22,6 +22,13 @@ contract TestUtils is Context, Test {
     bytes4 private constant RANDOM_UINT_SIG_0 = bytes4(keccak256("randomUint()"));
     bytes4 private constant RANDOM_UINT_SIG_2 = bytes4(keccak256("randomUint(uint256,uint256)"));
 
+    /// @dev Canonical address of Nick's factory.
+    address internal constant _NICKS_FACTORY = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
+
+    /// @dev The bytecode of Nick's factory.
+    bytes internal constant _NICKS_FACTORY_BYTECODE =
+        hex"7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe03601600081602082378035828234f58015156039578182fd5b8082525050506014600cf3";
+
     modifier onlyForked() {
         if (block.number > 1e6) {
             _;
@@ -238,6 +245,54 @@ contract TestUtils is Context, Test {
             mstore(0x40, and(add(add(res, returndatasize()), 0x3f), not(0x1f)))
             mstore(res, returndatasize())
             returndatacopy(add(res, 0x20), 0, returndatasize())
+        }
+    }
+
+    function _nicksCreate2(
+        uint256 payableAmount,
+        bytes32 salt,
+        bytes memory initializationCode
+    )
+        internal
+        returns (address deploymentAddress)
+    {
+        address f = _NICKS_FACTORY;
+        if (!__hasCode(f)) __etch(f, _NICKS_FACTORY_BYTECODE);
+        /// @solidity memory-safe-assembly
+        assembly {
+            let n := mload(initializationCode)
+            mstore(initializationCode, salt)
+            if iszero(call(gas(), f, payableAmount, initializationCode, add(n, 0x20), 0x00, 0x20)) {
+                returndatacopy(initializationCode, 0x00, returndatasize())
+                revert(initializationCode, returndatasize())
+            }
+            mstore(initializationCode, n) // Restore the length.
+            deploymentAddress := shr(96, mload(0x00))
+        }
+    }
+
+    function __hasCode(address target) private view returns (bool result) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := iszero(iszero(extcodesize(target)))
+        }
+    }
+
+    /// @dev Etches bytecode onto the target.
+    function __etch(address target, bytes memory bytecode) private {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let m := mload(0x40)
+            mstore(m, 0xb4d6c782) // `etch(address,bytes)`.
+            mstore(add(m, 0x20), target)
+            mstore(add(m, 0x40), 0x40)
+            let n := mload(bytecode)
+            mstore(add(m, 0x60), n)
+            // prettier-ignore
+            for { let i := 0 } lt(i, n) { i := add(0x20, i) } {
+                mstore(add(add(m, 0x80), i), mload(add(add(bytecode, 0x20), i)))
+            }
+            pop(call(gas(), VM_ADDRESS, 0, add(m, 0x1c), add(n, 0x64), 0x00, 0x00))
         }
     }
 }
