@@ -11,9 +11,6 @@ import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/Messa
 import {EIP712} from "solady/utils/EIP712.sol";
 import {EIP712Facet} from "src/utils/cryptography/EIP712Facet.sol";
 
-// debuggging
-import {console} from "forge-std/console.sol";
-
 // Simple MockMailApp following the pattern from Towns protocol
 contract MockMailApp is EIP712 {
     bytes32 public constant MAIL_TYPEHASH = keccak256("Mail(address to,string contents)");

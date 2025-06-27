@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(bun test:*)",
+      "Bash(forge test:*)",
+      "Bash(bun:*)",
+      "Bash(ls:*)",
+      "Bash(forge build:*)",
+      "Bash(grep:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)"
+    ],
+    "deny": []
+  }
+}
