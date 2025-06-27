@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 // interfaces
-import {IERC1271} from "./IERC1271.sol";
+import {IERC1271} from "@openzeppelin/contracts/interfaces/IERC1271.sol";
 
 // libraries
 
@@ -22,6 +22,18 @@ import {ERC1271Base} from "./ERC1271Base.sol";
  * @notice Custom facets can override `_erc1271Signer()` to provide constant signer
  * addresses for gas optimization, similar to how EIP712Facet allows overriding
  * `_domainNameAndVersion()`.
+ *
+ * @notice This implementation is based on Solady's ERC1271 implementation:
+ * @notice https://github.com/vectorized/solady/blob/main/src/accounts/ERC1271.sol
+ * @notice Original author: Solady (https://github.com/vectorized/solady)
+ * @notice Adapted for diamond pattern with additional features for modular smart accounts
+ *
+ * @notice Features implemented from Solady:
+ * @notice - Nested EIP-712 workflow for TypedDataSign and PersonalSign
+ * @notice - ERC-7739 compliance with supportsNestedTypedDataSign detection
+ * @notice - Gas-burning RPC validation mechanism for on-chain attack prevention
+ * @notice - ERC-6492 signature unwrapping support
+ * @notice - Safe caller detection for MulticallerWithSigner compatibility
  *
  * Example usage:
  * ```solidity
@@ -44,9 +56,7 @@ contract ERC1271Facet is IERC1271, ERC1271Base, Facet {
     }
 
     function __ERC1271_init_unchained(address signer) internal {
-        if (signer != address(0)) {
-            _setSigner(signer);
-        }
+        if (signer != address(0)) _setSigner(signer);
         _addInterface(type(IERC1271).interfaceId);
     }
 
@@ -54,35 +64,27 @@ contract ERC1271Facet is IERC1271, ERC1271Base, Facet {
     function isValidSignature(
         bytes32 hash,
         bytes calldata signature
-    )
-        external
-        view
-        override
-        returns (bytes4 magicValue)
-    {
+    ) external view override returns (bytes4 magicValue) {
         return _isValidSignature(hash, signature);
     }
 
-    /**
-     * @dev Returns the current signer address used for validation
-     */
+    /// @dev Returns the current signer address for transparency and external queries
+    /// @dev This function enables external contracts and dApps to determine the active signer
+    /// @dev Based on Solady's _erc1271Signer() internal function, exposed as public for diamond pattern
     function erc1271Signer() external view returns (address) {
         return _erc1271Signer();
     }
 
-    /**
-     * @dev Returns the ERC1271 signer address.
-     * This function reads from storage by default, but can be overridden to return
-     * a constant value for gas optimization.
-     *
-     * Example override in a custom facet:
-     * ```solidity
-     * function _erc1271Signer() internal pure override returns (address) {
-     *     return 0x1234567890123456789012345678901234567890; // Constant signer
-     * }
-     * ```
-     */
-    function _erc1271Signer() internal view virtual override returns (address) {
-        return super._erc1271Signer();
+    /// @dev For automatic detection that the smart account supports the nested EIP-712 workflow.
+    /// @dev Based on Solady's implementation: https://github.com/vectorized/solady/blob/main/src/accounts/ERC1271.sol
+    /// @dev Returns bytes4(0xd620c85a) to indicate support for the default nested EIP-712 behavior
+    /// @dev This enables automatic detection by wallet clients and dApps
+    function supportsNestedTypedDataSign()
+        public
+        view
+        virtual
+        returns (bytes32 result)
+    {
+        result = bytes4(0xd620c85a);
     }
 }

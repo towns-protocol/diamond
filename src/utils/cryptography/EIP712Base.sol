@@ -93,9 +93,6 @@ abstract contract EIP712Base {
      * @dev Returns the domain name and version.
      * This function should be overridden by facets that want to use constant values
      * instead of reading from storage for gas optimization.
-     *
-     * NOTE: If the returned result may change after deployment,
-     * you must override `_domainNameAndVersionMayChange()` to return true.
      */
     function _domainNameAndVersion()
         internal
@@ -107,16 +104,6 @@ abstract contract EIP712Base {
         EIP712Storage storage $ = _getEIP712Storage();
         name = $._EIP712Name();
         version = $._EIP712Version();
-    }
-
-    /**
-     * @dev Returns if `_domainNameAndVersion()` may change after deployment.
-     * Default: false (values are fixed after initialization).
-     * Override to return true if your implementation allows name/version to change.
-     */
-    function _domainNameAndVersionMayChange() internal pure virtual returns (bool result) {
-        // By default, assume name and version are fixed after initialization
-        return false;
     }
 
     /**

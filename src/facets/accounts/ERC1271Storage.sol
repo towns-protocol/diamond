@@ -9,8 +9,6 @@ library ERC1271Storage {
     struct Layout {
         // Custom signer address if needed for specific implementations
         address signer;
-        // Reserved space for future use
-        uint256[49] __gap;
     }
 
     function layout() internal pure returns (Layout storage ds) {
