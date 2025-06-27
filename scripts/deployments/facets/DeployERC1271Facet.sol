@@ -12,10 +12,9 @@ import {ERC1271Facet} from "../../../src/facets/accounts/ERC1271Facet.sol";
 
 library DeployERC1271Facet {
     function selectors() internal pure returns (bytes4[] memory _selectors) {
-        _selectors = new bytes4[](3);
+        _selectors = new bytes4[](2);
         _selectors[0] = ERC1271Facet.isValidSignature.selector;
         _selectors[1] = ERC1271Facet.erc1271Signer.selector;
-        _selectors[2] = ERC1271Facet.supportsNestedTypedDataSign.selector;
     }
 
     function makeCut(

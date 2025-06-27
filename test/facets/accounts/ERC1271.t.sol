@@ -23,9 +23,6 @@ import {EIP712Facet} from "src/utils/cryptography/EIP712Facet.sol";
 import {MockERC1271Signer} from "test/mocks/MockERC1271Signer.sol";
 import {MockMailApp} from "test/mocks/MockMailApp.sol";
 
-// debuggging
-import {console} from "forge-std/console.sol";
-
 contract ERC1271Test is TestUtils {
     /*´:°•.°+.*•´.*:˚.°*.˚•´.°:°•.°•.*•´.*:˚.°*.˚•´.°:°•.°+.*•´.*:*/
     /*                         CONSTANTS                          */

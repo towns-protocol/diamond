@@ -79,12 +79,4 @@ contract ERC1271Facet is IERC1271, ERC1271Base, Facet {
     function erc1271Signer() external view returns (address) {
         return _erc1271Signer();
     }
-
-    /// @dev For automatic detection that the smart account supports the nested EIP-712 workflow.
-    /// @dev Based on Solady's implementation: https://github.com/vectorized/solady/blob/main/src/accounts/ERC1271.sol
-    /// @dev Returns bytes4(0xd620c85a) to indicate support for the default nested EIP-712 behavior
-    /// @dev This enables automatic detection by wallet clients and dApps
-    function supportsNestedTypedDataSign() public view virtual returns (bytes32 result) {
-        result = bytes4(0xd620c85a);
-    }
 }
