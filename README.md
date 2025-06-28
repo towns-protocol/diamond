@@ -2,7 +2,7 @@
 
 [![NPM Package](https://img.shields.io/npm/v/@towns-protocol/diamond.svg)](https://www.npmjs.org/package/@towns-protocol/diamond)
 [![CI Status](https://github.com/towns-protocol/diamond/workflows/CI/badge.svg)](https://github.com/towns-protocol/diamond/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/towns-protocol/diamond/blob/main/LICENSE)
 [![Solidity Version](https://img.shields.io/badge/solidity-^0.8.29-lightgrey)](https://solidity.readthedocs.io/en/v0.8.29/)
 
 A comprehensive toolkit for building modular smart contracts with the [EIP-2535 Diamond Standard](https://eips.ethereum.org/EIPS/eip-2535). This package provides both the core Diamond contracts and optimized building blocks to create efficient, upgradeable systems.
