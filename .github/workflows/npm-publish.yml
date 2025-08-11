@@ -2,7 +2,7 @@ name: NPM Publish
 
 on:
   release:
-    types: [created]
+    types: [ created ]
   workflow_dispatch:
     inputs:
       version:
@@ -15,30 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          fetch-depth: 0
-      
-      - name: Install GPG
-        run: |
-            sudo apt-get update
-            sudo apt-get install -y gnupg
-
-      - name: Import GPG key
-        env:
-            GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-            mkdir -p ~/.gnupg
-            chmod 700 ~/.gnupg
-            echo "$GPG_PRIVATE_KEY" | gpg --batch --import
-            gpg --list-secret-keys --keyid-format LONG  # Print all keys for debugging
-            KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | awk '/^sec/{print $2}' | awk -F'/' '{print $2}')
-            echo "GPG key ID: $KEY_ID"  # Debug line to print the KEY_ID
-            echo "default-key $KEY_ID" >> ~/.gnupg/gpg.conf
-            echo "use-agent" >> ~/.gnupg/gpg.conf
-            echo "pinentry-mode loopback" >> ~/.gnupg/gpg.conf
-            echo "KEY_ID=$KEY_ID" >> $GITHUB_ENV
-            export GPG_TTY=$(tty)
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
@@ -49,28 +25,25 @@ jobs:
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: stable
-  
+
       - name: Install dependencies
         run: bun install
 
+      - name: Build
+        run: bun run build
+
       - name: Run tests
-        run: forge test
+        run: bun run test
 
       - name: Authenticate to npm
         run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
-      - name: Check npm login
+      - name: Set version and publish
         run: |
-            npm whoami || (echo "Not logged in to npm registry" && exit 1)
-      
-      - name: Run Nightly Script
-        env:
-            GH_TOKEN: ${{ secrets.TOWNS_DIAMOND_PAT }}
-            NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-            GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
-        run: |
-            git config user.name "GitHub Action Bot"
-            git config user.email "john+bot@towns.com"
-            git config commit.gpgSign false
-            git config user.signingkey ${{ env.KEY_ID }} 
-            ./scripts/publish-to-npm.sh ${{ inputs.version }}
+          VERSION="${{ github.event.release.tag_name || inputs.version }}"
+          if [ -n "$VERSION" ]; then
+            # Remove 'v' prefix if present
+            VERSION=$(echo "$VERSION" | sed 's/^v//')
+            npm version "$VERSION" --no-git-tag-version
+          fi
+          npm publish --access public
