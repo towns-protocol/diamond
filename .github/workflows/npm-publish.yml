@@ -44,6 +44,6 @@ jobs:
           if [ -n "$VERSION" ]; then
             # Remove 'v' prefix if present
             VERSION=$(echo "$VERSION" | sed 's/^v//')
-            npm version "$VERSION" --no-git-tag-version
+            npm version "$VERSION" --no-git-tag-version --allow-same-version
           fi
           npm publish --access public
