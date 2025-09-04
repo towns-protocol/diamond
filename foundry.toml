@@ -21,6 +21,10 @@ number_underscore = "thousands"
 quote_style = "double"
 sort_imports = true
 
+[lint]
+severity = ["high", "med", "low", "gas"]
+exclude_lints = ["asm-keccak256", "erc20-unchecked-transfer", "incorrect-shift"]
+
 [profile.ci.fuzz]
 runs = 65536
 

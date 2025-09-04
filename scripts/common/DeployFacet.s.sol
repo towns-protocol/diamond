@@ -16,7 +16,7 @@ contract DeployFacet is DeployBase {
     using LibString for *;
 
     /// @dev Constants for gas estimation
-    uint256 internal constant BLOCK_GAS_LIMIT = 30_000_000;
+    uint256 internal constant PER_TRANSACTION_GAS_LIMIT = 1 << 24; // gas limit per EIP-7825
     uint256 internal constant BASE_TX_COST = 21_000;
     uint256 internal constant CONTRACT_CREATION_COST = 32_000;
     uint256 internal constant STORAGE_VARIABLE_COST = 22_100;
@@ -101,13 +101,13 @@ contract DeployFacet is DeployBase {
         // estimate gas cost for this deployment
         batchGasEstimate += estimateDeploymentGas(bytecode);
 
-        // check if adding this contract would exceed block gas limit
-        if (batchGasEstimate > BLOCK_GAS_LIMIT) {
+        // check if adding this contract would exceed per-transaction gas limit
+        if (batchGasEstimate > PER_TRANSACTION_GAS_LIMIT) {
             warn(
                 string.concat(
                     "DeployFacet: Adding contract ",
                     name,
-                    " may exceed block gas limit 30_000_000. Deploy current batch first."
+                    " may exceed per-transaction gas limit 16,777,216. Deploy current batch first."
                 )
             );
         }
