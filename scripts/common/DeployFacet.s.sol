@@ -109,6 +109,10 @@ contract DeployFacet is DeployBase {
 
         // estimate gas cost for this deployment
         uint256 contractGas = estimateDeploymentGas(bytecode);
+        require(
+            BASE_TX_COST + contractGas <= PER_TRANSACTION_GAS_LIMIT,
+            string.concat("DeployFacet: contract ", name, " exceeds gas limit")
+        );
         batchGasEstimate += contractGas;
 
         // compute predicted address
@@ -286,17 +290,14 @@ contract DeployFacet is DeployBase {
         for (uint256 i; i < queueLength; ++i) {
             uint256 contractGas = deploymentQueue[i].gasEstimate;
 
-            // check if adding this contract would exceed limit
+            // start new batch if adding this contract would exceed limit
             if (currentBatchGas + contractGas > PER_TRANSACTION_GAS_LIMIT) {
-                // start new batch (unless this is the first contract in current batch)
-                if (currentBatchGas > BASE_TX_COST) {
-                    arr.p(i);
-                    currentBatchGas = BASE_TX_COST;
-                }
+                arr.p(i);
+                currentBatchGas = BASE_TX_COST;
             }
             currentBatchGas += contractGas;
         }
-        arr.p(queueLength); // final batch ends at queue length
+        arr.p(queueLength);
 
         batchEndIndices = arr.asUint256Array();
     }
