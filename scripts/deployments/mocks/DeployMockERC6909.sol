@@ -53,9 +53,7 @@ library DeployMockERC6909 {
         returns (IDiamond.FacetCut memory)
     {
         return IDiamond.FacetCut({
-            action: action,
-            facetAddress: facetAddress,
-            functionSelectors: selectors()
+            action: action, facetAddress: facetAddress, functionSelectors: selectors()
         });
     }
 

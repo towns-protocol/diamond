@@ -226,7 +226,9 @@ abstract contract ERC1271Base is EIP712Base {
                     let e := 0 // Length of `contentsName` in explicit mode.
                     for { let q := sub(add(p, c), 1) } 1 {} {
                         e := add(e, 1) // Scan backwards until we encounter a ')'.
-                        if iszero(gt(lt(e, c), eq(byte(0, mload(sub(q, e))), 41))) { break }
+                        if iszero(gt(lt(e, c), eq(byte(0, mload(sub(q, e))), 41))) {
+                            break
+                        }
                     }
                     c := sub(c, e) // Truncate `contentsDescription` to `contentsType`.
                     calldatacopy(p, add(add(o, 0x40), c), e) // Copy `contentsName`.

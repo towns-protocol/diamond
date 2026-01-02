@@ -207,9 +207,12 @@ contract ProxyManagerTest is TestUtils, IDiamondCutBase, IOwnableBase {
         extensions[0] = DeployMockFacet.makeCut(mockFacet, IDiamond.FacetCutAction.Add);
 
         vm.prank(deployer);
-        IDiamondCut(address(implementation)).diamondCut(
-            extensions, mockFacet, abi.encodeWithSelector(MockFacet.__MockFacet_init.selector, 42)
-        );
+        IDiamondCut(address(implementation))
+            .diamondCut(
+                extensions,
+                mockFacet,
+                abi.encodeWithSelector(MockFacet.__MockFacet_init.selector, 42)
+            );
 
         vm.prank(instanceOwner);
         IMockFacet(address(instance)).upgrade();

@@ -275,10 +275,8 @@ library ERC721Lib {
         returns (bool)
     {
         address owner = ownerOf(self, tokenId);
-        return (
-            spender == owner || isApprovedForAll(self, owner, spender)
-                || getApproved(self, tokenId) == spender
-        );
+        return (spender == owner || isApprovedForAll(self, owner, spender)
+                || getApproved(self, tokenId) == spender);
     }
 
     function requireMinted(MinimalERC721Storage storage self, uint256 tokenId) internal view {
