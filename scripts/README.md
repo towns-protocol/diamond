@@ -70,4 +70,4 @@ The script uses a comprehensive gas estimation model that considers:
 - Deployed bytecode costs (200 gas per byte)
 - Storage variable costs (22,100 gas)
 
-This ensures accurate gas estimates for both single and batch deployments while providing warnings when approaching block gas limits.
+This ensures accurate gas estimates for both single and batch deployments. Batches are automatically split when approaching per-transaction gas limits, and contracts exceeding the limit are blocked at queue time.
