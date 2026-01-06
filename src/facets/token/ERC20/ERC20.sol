@@ -58,10 +58,7 @@ abstract contract ERC20 is IERC20, IERC20Metadata, Facet {
     }
 
     /// @inheritdoc IERC20
-    function allowance(
-        address owner,
-        address spender
-    )
+    function allowance(address owner, address spender)
         public
         view
         virtual

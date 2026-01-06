@@ -24,7 +24,8 @@ interface IMockFacet {
 }
 
 library MockFacetStorage {
-    bytes32 internal constant MOCK_FACET_STORAGE_POSITION = keccak256("mock.facet.storage.position");
+    bytes32 internal constant MOCK_FACET_STORAGE_POSITION =
+        keccak256("mock.facet.storage.position");
 
     struct Layout {
         uint256 value;
@@ -85,9 +86,7 @@ library DeployMockFacet {
         returns (IDiamond.FacetCut memory)
     {
         return IDiamond.FacetCut({
-            action: action,
-            facetAddress: facetAddress,
-            functionSelectors: selectors()
+            action: action, facetAddress: facetAddress, functionSelectors: selectors()
         });
     }
 

@@ -48,14 +48,7 @@ contract TestUtils is Context, Test {
         );
     }
 
-    function getMappingValueSlot(
-        uint256 mappingSlot,
-        uint256 key
-    )
-        internal
-        pure
-        returns (bytes32)
-    {
+    function getMappingValueSlot(uint256 mappingSlot, uint256 key) internal pure returns (bytes32) {
         return keccak256(abi.encode(key, mappingSlot));
     }
 

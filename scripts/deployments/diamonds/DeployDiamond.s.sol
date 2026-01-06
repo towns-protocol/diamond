@@ -67,7 +67,9 @@ contract DeployDiamond is DiamondHelper, SimpleDeployer {
         return Diamond.InitParams({
             baseFacets: baseFacets(),
             init: multiInit,
-            initData: abi.encodeWithSelector(MultiInit.multiInit.selector, _initAddresses, _initDatas)
+            initData: abi.encodeWithSelector(
+                MultiInit.multiInit.selector, _initAddresses, _initDatas
+            )
         });
     }
 

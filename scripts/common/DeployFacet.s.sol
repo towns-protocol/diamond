@@ -6,6 +6,7 @@ import {Vm} from "forge-std/Vm.sol";
 
 // libraries
 import {LibDeploy} from "../../src/utils/LibDeploy.sol";
+import {DynamicArrayLib} from "solady/utils/DynamicArrayLib.sol";
 import {LibClone} from "solady/utils/LibClone.sol";
 import {LibString} from "solady/utils/LibString.sol";
 
@@ -14,6 +15,7 @@ import {DeployBase} from "./DeployBase.s.sol";
 
 contract DeployFacet is DeployBase {
     using LibString for *;
+    using DynamicArrayLib for DynamicArrayLib.DynamicArray;
 
     /// @dev Constants for gas estimation
     uint256 internal constant PER_TRANSACTION_GAS_LIMIT = 1 << 24; // gas limit per EIP-7825
@@ -22,9 +24,16 @@ contract DeployFacet is DeployBase {
     uint256 internal constant STORAGE_VARIABLE_COST = 22_100;
     uint256 internal constant DEPLOYED_BYTECODE_COST_PER_BYTE = 200;
 
+    /// @dev Entry in the deployment queue
+    struct Deployment {
+        string name;
+        bytes32 salt;
+        uint256 gasEstimate;
+        address addr;
+    }
+
     /// @dev Queue for batch deployments
-    string[] internal deploymentQueue;
-    bytes32[] internal saltQueue;
+    Deployment[] internal deploymentQueue;
 
     /// @dev Cache for init code hashes to avoid recomputing
     mapping(string => bytes32) internal initCodeHashes;
@@ -99,25 +108,22 @@ contract DeployFacet is DeployBase {
         }
 
         // estimate gas cost for this deployment
-        batchGasEstimate += estimateDeploymentGas(bytecode);
+        uint256 contractGas = estimateDeploymentGas(bytecode);
+        require(
+            BASE_TX_COST + contractGas <= PER_TRANSACTION_GAS_LIMIT,
+            string.concat("DeployFacet: contract ", name, " exceeds gas limit")
+        );
+        batchGasEstimate += contractGas;
 
-        // check if adding this contract would exceed per-transaction gas limit
-        if (batchGasEstimate > PER_TRANSACTION_GAS_LIMIT) {
-            warn(
-                string.concat(
-                    "DeployFacet: Adding contract ",
-                    name,
-                    " may exceed per-transaction gas limit 16,777,216. Deploy current batch first."
-                )
-            );
-        }
+        // compute predicted address
+        address predicted =
+            LibClone.predictDeterministicAddress(initCodeHash, salt, CREATE2_FACTORY);
 
-        // add to the queue and update gas estimate
-        deploymentQueue.push(name);
-        saltQueue.push(salt);
+        // add to the queue
+        deploymentQueue.push(Deployment(name, salt, contractGas, predicted));
     }
 
-    /// @notice Deploy all contracts in the queue using batch deployment
+    /// @notice Deploy all contracts in the queue, automatically splitting into batches if needed
     /// @param deployer Address to deploy from
     function deployBatch(address deployer) external broadcastWith(deployer) {
         uint256 queueLength = deploymentQueue.length;
@@ -140,12 +146,10 @@ contract DeployFacet is DeployBase {
                 deployer.toHexStringChecksummed()
             );
 
-            // log each contract being deployed
             for (uint256 i; i < queueLength; ++i) {
-                string memory name = deploymentQueue[i];
-                bytes32 salt = saltQueue[i];
-                string memory saltStr = uint256(salt).toMinimalHexString();
-                debug(string.concat("  ", unicode"📄 ", name, " (", saltStr, ")"));
+                Deployment storage entry = deploymentQueue[i];
+                string memory saltStr = uint256(entry.salt).toMinimalHexString();
+                debug(string.concat("  ", unicode"📄 ", entry.name, " (", saltStr, ")"));
             }
         } else {
             if (MULTICALL3_ADDRESS.code.length == 0) {
@@ -154,29 +158,13 @@ contract DeployFacet is DeployBase {
             }
         }
 
-        bytes[] memory bytecodes = new bytes[](queueLength);
-        bytes32[] memory salts = new bytes32[](queueLength);
-
-        for (uint256 i; i < queueLength; ++i) {
-            string memory name = deploymentQueue[i];
-            string memory path = getArtifactPath(name);
-            bytecodes[i] = vm.getCode(path);
-            salts[i] = saltQueue[i];
-        }
-
-        address[] memory deployedAddresses = LibDeploy.deployMultiple(bytecodes, salts);
-
-        if (!isTesting()) {
-            // log successful deployments
-            for (uint256 i; i < queueLength; ++i) {
-                string memory name = deploymentQueue[i];
-                address deployedAddr = deployedAddresses[i];
-
-                info(
-                    string.concat(unicode"✅ ", name, " deployed at"),
-                    deployedAddr.toHexStringChecksummed()
-                );
-            }
+        // Calculate batch boundaries and deploy each batch
+        uint256[] memory batchEndIndices = _calculateBatchBoundaries();
+        uint256 startIdx;
+        for (uint256 i; i < batchEndIndices.length; ++i) {
+            uint256 endIdx = batchEndIndices[i];
+            _deploySingleBatch(startIdx, endIdx);
+            startIdx = endIdx;
         }
 
         clearQueue();
@@ -185,7 +173,6 @@ contract DeployFacet is DeployBase {
     /// @notice Clear the deployment queue without deploying
     function clearQueue() public {
         delete deploymentQueue;
-        delete saltQueue;
         batchGasEstimate = 0;
     }
 
@@ -208,15 +195,14 @@ contract DeployFacet is DeployBase {
     }
 
     /// @notice Get the current deployment queue
-    /// @return names Array of contract names in the queue
-    /// @return salts Array of salts for each contract
-    /// @return gasEstimate Current estimated gas for the batch
+    /// @return entries Array of deployments with predicted addresses
+    /// @return totalGasEstimate Total estimated gas for all contracts
     function getQueue()
         external
         view
-        returns (string[] memory names, bytes32[] memory salts, uint256 gasEstimate)
+        returns (Deployment[] memory entries, uint256 totalGasEstimate)
     {
-        return (deploymentQueue, saltQueue, batchGasEstimate);
+        return (deploymentQueue, batchGasEstimate);
     }
 
     /// @notice Get the deployed address for a contract by name using default salt (0)
@@ -279,16 +265,72 @@ contract DeployFacet is DeployBase {
     /*.•°:°.´+˚.*°.˚:*.´•*.+°.•°:´*.´•*.•°.•°:°.´:•˚°.*°.˚:*.´+°.•*/
 
     /// @dev Wrapper function that captures artifactPath in its closure
-    function _deployWrapper(address) internal returns (address) {
+    function _deployWrapper(address) private returns (address) {
         return LibDeploy.deployCode(artifactPath, "");
     }
 
-    /// @notice Estimate gas cost for deploying a contract
+    /// @notice Estimate gas cost for deploying a contract (excluding base tx cost)
+    /// @dev BASE_TX_COST is handled per-batch in _calculateBatchBoundaries
     /// @param bytecode The contract bytecode
-    /// @return gas Estimated gas cost
-    function estimateDeploymentGas(bytes memory bytecode) internal view returns (uint256 gas) {
-        if (deploymentQueue.length == 0) gas = BASE_TX_COST;
-        gas += CONTRACT_CREATION_COST + STORAGE_VARIABLE_COST
-            + bytecode.length * DEPLOYED_BYTECODE_COST_PER_BYTE;
+    /// @return gas Estimated gas cost for this contract only
+    function estimateDeploymentGas(bytes memory bytecode) internal pure returns (uint256 gas) {
+        gas = CONTRACT_CREATION_COST + STORAGE_VARIABLE_COST + bytecode.length
+            * DEPLOYED_BYTECODE_COST_PER_BYTE;
+    }
+
+    /// @notice Calculate batch boundaries based on gas limits
+    /// @return batchEndIndices Array of end indices (exclusive) for each batch
+    function _calculateBatchBoundaries() private view returns (uint256[] memory batchEndIndices) {
+        uint256 queueLength = deploymentQueue.length;
+        if (queueLength == 0) return new uint256[](0);
+
+        DynamicArrayLib.DynamicArray memory arr = DynamicArrayLib.p();
+        uint256 currentBatchGas = BASE_TX_COST;
+
+        for (uint256 i; i < queueLength; ++i) {
+            uint256 contractGas = deploymentQueue[i].gasEstimate;
+
+            // start new batch if adding this contract would exceed limit
+            if (currentBatchGas + contractGas > PER_TRANSACTION_GAS_LIMIT) {
+                arr.p(i);
+                currentBatchGas = BASE_TX_COST;
+            }
+            currentBatchGas += contractGas;
+        }
+        arr.p(queueLength);
+
+        batchEndIndices = arr.asUint256Array();
+    }
+
+    /// @notice Deploy a subset of the queue as a single batch
+    /// @param startIdx Start index (inclusive)
+    /// @param endIdx End index (exclusive)
+    function _deploySingleBatch(uint256 startIdx, uint256 endIdx) private {
+        uint256 batchSize = endIdx - startIdx;
+
+        // prepare bytecodes and salts for this batch
+        bytes[] memory bytecodes = new bytes[](batchSize);
+        bytes32[] memory salts = new bytes32[](batchSize);
+
+        for (uint256 i = startIdx; i < endIdx; ++i) {
+            Deployment storage entry = deploymentQueue[i];
+            bytecodes[i - startIdx] = vm.getCode(getArtifactPath(entry.name));
+            salts[i - startIdx] = entry.salt;
+        }
+
+        // deploy via Multicall3
+        address[] memory deployedAddresses = LibDeploy.deployMultiple(bytecodes, salts);
+
+        // log successful deployments
+        if (!isTesting()) {
+            for (uint256 i; i < batchSize; ++i) {
+                info(
+                    string.concat(
+                        unicode"✅ ", deploymentQueue[startIdx + i].name, " deployed at"
+                    ),
+                    deployedAddresses[i].toHexStringChecksummed()
+                );
+            }
+        }
     }
 }

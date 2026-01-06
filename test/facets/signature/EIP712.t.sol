@@ -103,8 +103,7 @@ contract EIP712Test is TestUtils, EIP712Utils {
             string memory name,
             string memory version,
             uint256 chainId,
-            address verifyingContract,
-            ,
+            address verifyingContract,,
         ) = eip712.eip712Domain();
 
         assertEq(name, "MockEIP712");

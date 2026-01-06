@@ -89,10 +89,7 @@ abstract contract ERC721 is Facet {
         ERC721Storage.layout().inner.setApprovalForAll(operator, approved);
     }
 
-    function isApprovedForAll(
-        address owner,
-        address operator
-    )
+    function isApprovedForAll(address owner, address operator)
         external
         view
         virtual

@@ -15,13 +15,7 @@ abstract contract FacetHelper is IDiamond {
         return functionSelectors;
     }
 
-    function makeCut(
-        address facetAddress,
-        FacetCutAction action
-    )
-        public
-        returns (FacetCut memory)
-    {
+    function makeCut(address facetAddress, FacetCutAction action) public returns (FacetCut memory) {
         return
             FacetCut({action: action, facetAddress: facetAddress, functionSelectors: selectors()});
     }

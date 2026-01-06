@@ -38,8 +38,7 @@ library DiamondLoupeBase {
         for (uint256 i; i < facetCount; ++i) {
             address _facetAddress = _facetAddresses[i];
             _facets[i] = IDiamondLoupeBase.Facet({
-                facet: _facetAddress,
-                selectors: facetSelectors(_facetAddress)
+                facet: _facetAddress, selectors: facetSelectors(_facetAddress)
             });
         }
     }
